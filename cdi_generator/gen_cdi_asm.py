@@ -59,12 +59,55 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         print("We're here")
         init_functToCallSites_map(all_functs)
         # pass descr for .s file, while asm_dest for .cdi.s file
-        cp = clone_function(all_functs[2], asm_dest)
-       
+        #extract_LFB(asm_dest, all_functs)
+        #cp = clone_function(all_functs[1], asm_dest)
+        
+        v = all_functs[0].get_cdi_line_num(file_content) #should be +1
+        print(all_functs[0].asm_name)
+        print(v)
+        print(all_functs[0].get_cdi_end_line_num(file_content, functs))
+ 
         asm_src.close()
         asm_dest.close()
  
+def extract_content(file_handler): 
+    content = []
+    next_line = file_handler.readline()
+    while(not next_line.startswith('LFE')): 
+        content.append(next_line)
+        next_line = file_handler.readline()
+        #readnext
+        
+    #print(content)    
+    return content
+    
+def extract_LFB(file_handler, functs):
 
+    file_handler.seek(0)
+    arr = []
+    for i in range(1, len(functs)): #store indices of functs in arr
+        arr.append(i)
+    print(arr)
+    k = 0
+    previous_line = None 
+    #content = []
+    count = 0 
+    for line in file_handler:
+        target = '.LFB'
+        if(target in line):
+            if(':' in line):
+                for funct in functs:
+                    if(funct.uniq_label in previous_line):
+                        #print(funct.uniq_label)  
+                        #print("Found match on line ")
+                        #print(count)
+                        funct.cdi_asm_line_num = count-2
+                        ind_prev = functs.index(funct)-1
+                        if(ind_prev > -1):
+                            functs[ind_prev].asm_cdi_end_line_num = count - 2
+        previous_line = line
+        count += 1
+        
  
 functToCalSitesMap = dict() 
       
@@ -125,69 +168,64 @@ def clone_function(funct, file_handler):
     # 1. Collect all lines in funct.
     # 2. Copy/Insert all lines after funct.
     # 3. Run extract_function to get new funct object.
-    line_num = funct.asm_cdi_line_num
+    line_num = funct.get_cdi_line_num(file_content)
     #line_num += 1
-    
-    print(funct.asm_cdi_line_num)
-    print("FILE: " + file_handler.name)
-    print("FUNCTION: "  + funct.uniq_label)
-    
+    #print("FILE: " + file_handler.name)
+    #print("FUNCTION: "  + funct.uniq_label)
+    #print("ACTUAL NAME " + funct.asm_name)
     file_handler = seek_file_to_line_number(file_handler, line_num)
     #file_handler = open(file_.name, "r+")
     #file_handler.seek(line_num)
     asm_line = file_handler.readline()
-    print(line_num)
-    print(asm_line)
+    #print(line_num)
+    #print(funct.asm_cdi_end_line_num)
     copies = []
-    return
     """
     try:
         first_word = asm_line.split()[0]
     except IndexError:
         pass # ignore empty line
-        
+       
     comment_continues = False
     sites = []
     direct_call_sites = []
     empty_ret_dict = dict()
-
-    while asm_line:
-        copies.append(asm_line)
-        
-        #asm_parsing.update_dwarf_loc(asm_line, dwarf_loc)
-        try:
-            first_word = asm_line.split()[0]
-        except IndexError:
-            # ignore empty line
-            asm_line = file_handler.readline()
-            line_num += 1
-            
-            continue
-
-        if (first_word[:len('.LFE')] == '.LFE'):
-            break
-        
+    """
+    end = funct.get_cdi_end_line_num(file_content, functs)
+    while asm_line:       
+        if(line_num < end):
+            copies.append(asm_line)
+       
         asm_line = file_handler.readline()
         line_num += 1
-    else:
-        eprint(dwarf_loc.filename() + ':' + file_handler.name + ':' 
-                + start_line_num + ' error: unterminated function: ', funct_name)
-        sys.exit(1)
-    
+    print(end)
+    """
+    #print(funct.uniq_label)
+    #print(copies)
+    #print("----------------")
     #return copies
-    #part 2: writing to the .s file
+    #part 2: writing to the .cdi.s file
+    
+    # TODO: PERFORM INSERTION
+    print("entering super loop")
+    print(len(copies))
+    for copied_line in copies:
+        print(funct.asm_name)
+        copied_line = copied_line.replace(funct.asm_name, funct.asm_name + "_2")
+        print(copied_line)
+        file_handler.write(copied_line)
     file_handler.close()
-
-  
+    """
     count = 0
     for line in fileinput.input(file_descr.filename, inplace=1):
         if count >= line_num:
             for c in copies:
                 print c          
             break        
-        #print line,
+        print line,
         count += 1
-    """        
+    
+                   
 def cdi_asm_name(asm_name):
     assert asm_name[-2:] == '.s'
     return asm_name[:-2] + '.cdi.s'
@@ -198,7 +236,8 @@ def write_lines(num_lines, asm_src, asm_dest, dwarf_loc):
     while i < num_lines:
         asm_line = asm_src.readline()
         asm_parsing.update_dwarf_loc(asm_line, dwarf_loc)
-        asm_dest.write(asm_line)
+        #asm_dest.write(asm_line)
+        debug_write(asm_dest, asm_line, None, None)
         #debug_write(asm_dest, asm_line)
         i += 1
 
@@ -296,17 +335,26 @@ def super_newline_count(content):
             quotation_mode = not quotation_mode
         
     return newline_count
-    
+
+file_content = []
+
 def debug_write(file_handler, content, all_functs, funct, apply_to_current_funct=False):
-    num_new_lines = super_newline_count(content)
+    r = content.split('\n')
+    while '' in r:
+        r.remove('')
+    file_content.extend(r)
     
+    
+    #num_new_lines = super_newline_count(content)
+    """
     sys.stdout.write("[ADDITIONAL LINES BEGIN (" + str(num_new_lines) +  ")]\n")
     sys.stdout.write(content)
     sys.stdout.write("[ADDITIONAL LINES END]\n")
     sys.stdout.flush()
+    """
+    #increment_cdi_funct(all_functs, funct, num_new_lines, apply_to_current_funct)
     
-    increment_cdi_funct(all_functs, funct, num_new_lines, apply_to_current_funct)
-    file_handler.write(content)
+    #file_handler.write(content)
         
 def convert_return_site(site, funct, asm_line, asm_dest, cfg,
         sled_id_faucet, dwarf_loc, options, functs):

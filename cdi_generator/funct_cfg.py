@@ -50,14 +50,36 @@ class Function:
         self.asm_filename = asm_filename
         self.sites = sites
         self.asm_line_num = asm_line_num
-        self.asm_cdi_line_num = asm_line_num
+        #self.asm_cdi_line_num = asm_line_num
+        #self.asm_cdi_end_line_num = -1
         self.uniq_label = asm_filename + '.' + asm_name
         self.src_filename = src_filename
+        self.body = []
 
         # unitialized / improperly set until gen_cfg finishes
         self.ftype = None # function type
         self.ret_dict = dict()
         self.is_global = True
+        
+    def get_cdi_line_num(self, file_content):   
+        for line in file_content:
+            if(self.asm_name in line):
+                if(':' in line): 
+                    if(len(line) == len(self.asm_name)+1):                        
+                        return file_content.index(line)
+                        
+    def get_cdi_end_line_num(self, file_content, functs):
+        closest = 9999999
+        cur_position = self.get_cdi_line_num(file_content) 
+        for funct in functs:
+            if(funct == self):
+                continue
+            func_position = funct.get_cdi_line_num(file_content)
+            diff = func_position - cur_position
+            if(diff < closest and diff > 0):
+                closest = diff
+        end = cur_position + closest 
+        return end
 
 class FunctionType:
     """A function signature type. May be associated with a particular function"""
