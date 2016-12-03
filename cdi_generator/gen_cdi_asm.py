@@ -2,6 +2,7 @@ import funct_cfg
 import operator
 import asm_parsing
 import sys
+import gen_cfg
 
 def gen_cdi_asm(cfg, asm_file_descrs, options):
     """Writes cdi compliant assembly from cfg and assembly file descriptions"""
@@ -60,53 +61,13 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         init_functToCallSites_map(all_functs)
         # pass descr for .s file, while asm_dest for .cdi.s file
         #extract_LFB(asm_dest, all_functs)
-        #cp = clone_function(all_functs[1], asm_dest)
+        cp = clone_function(all_functs[1], all_functs)
         
-        v = all_functs[0].get_cdi_line_num(file_content) #should be +1
-        print(all_functs[0].asm_name)
-        print(v)
-        print(all_functs[0].get_cdi_end_line_num(file_content, functs))
+        for line in file_content:
+            asm_dest.write(line + '\n')
  
         asm_src.close()
         asm_dest.close()
- 
-def extract_content(file_handler): 
-    content = []
-    next_line = file_handler.readline()
-    while(not next_line.startswith('LFE')): 
-        content.append(next_line)
-        next_line = file_handler.readline()
-        #readnext
-        
-    #print(content)    
-    return content
-    
-def extract_LFB(file_handler, functs):
-
-    file_handler.seek(0)
-    arr = []
-    for i in range(1, len(functs)): #store indices of functs in arr
-        arr.append(i)
-    print(arr)
-    k = 0
-    previous_line = None 
-    #content = []
-    count = 0 
-    for line in file_handler:
-        target = '.LFB'
-        if(target in line):
-            if(':' in line):
-                for funct in functs:
-                    if(funct.uniq_label in previous_line):
-                        #print(funct.uniq_label)  
-                        #print("Found match on line ")
-                        #print(count)
-                        funct.cdi_asm_line_num = count-2
-                        ind_prev = functs.index(funct)-1
-                        if(ind_prev > -1):
-                            functs[ind_prev].asm_cdi_end_line_num = count - 2
-        previous_line = line
-        count += 1
         
  
 functToCalSitesMap = dict() 
@@ -134,19 +95,7 @@ def init_functToCallSites_map(functs):
         """
     return functToCalSitesMap
    
-def increment_cdi_funct(functs, current_funct, amount, apply_to_current_funct=False):
-    ind = functs.index(current_funct)
-    if(apply_to_current_funct is False):
-        ind = ind + 1
-    
-    # Bounds check
-    if(ind >= len(functs)):
-        return
-        
-    for item in functs[ind:]:
-        item.asm_cdi_line_num += amount
 
-   
 def seek_file_to_line_number(file, target_line_no):
     # .name for reading cdi.s, while .filename for reading .s
     file.seek(0)
@@ -164,7 +113,7 @@ def seek_file_to_line_number(file, target_line_no):
     
 import fileinput
  
-def clone_function(funct, file_handler):
+def clone_function(funct, functs):
     # 1. Collect all lines in funct.
     # 2. Copy/Insert all lines after funct.
     # 3. Run extract_function to get new funct object.
@@ -173,32 +122,29 @@ def clone_function(funct, file_handler):
     #print("FILE: " + file_handler.name)
     #print("FUNCTION: "  + funct.uniq_label)
     #print("ACTUAL NAME " + funct.asm_name)
-    file_handler = seek_file_to_line_number(file_handler, line_num)
-    #file_handler = open(file_.name, "r+")
+    #file_handler = seek_file_to_line_number(file_handler, line_num)
     #file_handler.seek(line_num)
-    asm_line = file_handler.readline()
+    #asm_line = file_content[line_num]
     #print(line_num)
     #print(funct.asm_cdi_end_line_num)
     copies = []
-    """
-    try:
-        first_word = asm_line.split()[0]
-    except IndexError:
-        pass # ignore empty line
-       
-    comment_continues = False
-    sites = []
-    direct_call_sites = []
-    empty_ret_dict = dict()
-    """
+    
     end = funct.get_cdi_end_line_num(file_content, functs)
-    while asm_line:       
+    start = line_num
+    for line in file_content[start:]:       
         if(line_num < end):
-            copies.append(asm_line)
-       
-        asm_line = file_handler.readline()
+            copies.append(line.replace(funct.asm_name, funct.asm_name + "_2"))
         line_num += 1
-    print(end)
+
+    #insert clone after funct
+    
+    file_content[end:end] = copies
+    
+    #extract_funct(asm_file, funct_name, line_num, dwarf_loc)
+    #l = 1
+    #for c in copies:
+    #    file_content.insert(+l, c)
+    #    l += 1 
     """
     #print(funct.uniq_label)
     #print(copies)
@@ -215,7 +161,7 @@ def clone_function(funct, file_handler):
         print(copied_line)
         file_handler.write(copied_line)
     file_handler.close()
-    """
+    
     count = 0
     for line in fileinput.input(file_descr.filename, inplace=1):
         if count >= line_num:
@@ -224,7 +170,7 @@ def clone_function(funct, file_handler):
             break        
         print line,
         count += 1
-    
+    """
                    
 def cdi_asm_name(asm_name):
     assert asm_name[-2:] == '.s'
