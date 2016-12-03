@@ -64,6 +64,8 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         asm_src.close()
         asm_dest.close()
  
+
+ 
 functToCalSitesMap = dict() 
       
 def init_functToCallSites_map(functs):
