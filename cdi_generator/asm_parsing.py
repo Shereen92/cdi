@@ -1,3 +1,7 @@
+"""
+asm_parsing.py ~ A module for parsing asm source files.
+"""
+
 import sys
 from eprint import eprint
 
@@ -6,13 +10,14 @@ class AsmFileDescription:
         self.filename = name
 
         # these unique define functions because we have their filename (above)
-        self.funct_names = [] 
+        self.funct_names = []
 
     def check_filename(self):
         if self.filename[-2:] != '.s':
             eprint('error: non-assembly file passed:', self.filename)
             sys.exit(1)
-        elif len(self.filename) >= len('.cdi.s') and self.filename[-6:] == '.cdi.s':
+        elif len(self.filename) >= len('.cdi.s') and \
+             self.filename[-6:] == '.cdi.s':
             eprint('error: cdi-assembly file passed:', self.filename)
             sys.exit(1)
 
@@ -71,7 +76,8 @@ class DwarfSourceLoc:
         return self._filename_dict[self.filenum]
 
     def __str__(self):
-        return self.filename() + ':' + str(self.line_num) + ':' + str(self.col_num)
+        return self.filename() + ':' + str(self.line_num) + ':' + \
+            str(self.col_num)
 
     def valid(self):
         return self.filenum >= 0 and self.line_num >= 0 and self.col_num >= 0

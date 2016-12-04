@@ -1,19 +1,15 @@
 #!/usr/bin/env python
+"""
+gen_cdi.py ~ The entry module for the CDI conversion python program.
+"""
 
 import argparse
 import sys
 import asm_parsing
-import jsonpickle
 from gen_cfg import gen_cfg
 from gen_cdi_asm import gen_cdi_asm
-from eprint import eprint
 
-
-############################
-# Script
-############################
-
-if __name__ == "__main__":
+def process_commandline():
     parser = argparse.ArgumentParser(description=
             'Convert N assembly files to N cdi-compliant assembly files')
     parser.add_argument('asm_filenames', nargs='+', 
@@ -47,3 +43,7 @@ if __name__ == "__main__":
     cfg.print_json_to('cdi_cfg.json')
 
     gen_cdi_asm(cfg, asm_file_descrs, options)
+
+if __name__ == "__main__":
+    process_commandline()
+   

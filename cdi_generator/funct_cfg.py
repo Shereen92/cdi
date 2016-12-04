@@ -1,3 +1,8 @@
+"""
+funct_cfg.py ~ A module housing classes representing Control Flow Graphs,
+               Functions, etc.
+"""
+
 import types
 import jsonpickle
 
@@ -17,6 +22,9 @@ class FunctControlFlowGraph:
         self._funct_vertices = dict()
 
     def add_funct(self, funct):
+        """
+        Add funct to the control flow graph.
+        """
         uniq_label = funct.asm_filename + '.' + funct.asm_name
         self._funct_vertices[uniq_label] = funct
 
@@ -45,7 +53,8 @@ class FunctControlFlowGraphIterator:
         return self.cfg_iter.next()
 
 class Function:
-    def __init__(self, asm_name, asm_filename, src_filename, sites, asm_line_num):
+    def __init__(self, asm_name, asm_filename, src_filename, sites, 
+                 asm_line_num):
         self.asm_name = asm_name
         self.asm_filename = asm_filename
         self.sites = sites
@@ -63,27 +72,28 @@ class Function:
         
     def get_cdi_line_num(self, file_content):   
         for line in file_content:
-            if(self.asm_name in line):
-                if(':' in line): 
-                    if(len(line) == len(self.asm_name)+1):                        
+            if self.asm_name in line:
+                if ':' in line: 
+                    if len(line) == len(self.asm_name)+1:
                         return file_content.index(line)
                         
     def get_cdi_end_line_num(self, file_content, functs):
         closest = 9999999
         cur_position = self.get_cdi_line_num(file_content) 
         for funct in functs:
-            if(funct == self):
+            if funct == self:
                 continue
             func_position = funct.get_cdi_line_num(file_content)
             diff = func_position - cur_position
-            if(diff < closest and diff > 0):
+            if diff < closest and diff > 0:
                 closest = diff
         end = cur_position + closest 
         return end
 
 class FunctionType:
-    """A function signature type. May be associated with a particular function"""
-
+    """
+    A function signature type. May be associated with a particular function
+    """
     def __init__(self, mangled_str):
         self.mangled_str = mangled_str
         self.src_name = '' # used when function type
@@ -102,7 +112,9 @@ class FunctionType:
                 self.mangled_str[name_index + len(self.src_name):])
 
     def is_local(self):
-        """Returns true if signature associated with particular funct is static"""
+        """
+        Returns true if signature associated with particular funct is static
+        """
 
         # must be associated with particular function
         assert self.src_name
@@ -113,7 +125,7 @@ class FunctionType:
         return str(self) == str(other)
 
     def __ne__(self, other):
-        return not __eq__(self, other)
+        return not self.__eq__(other)
 
 FunctionType.arbitrary = FunctionType('')
 

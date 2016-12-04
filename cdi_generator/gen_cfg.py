@@ -1,8 +1,11 @@
+"""
+gen_cfg.py ~ A module for the generation of Control Flow Graphs.
+"""
 import funct_cfg
 import asm_parsing
 import operator
-from eprint import eprint
 import sys
+from eprint import eprint
 
 def gen_cfg(asm_file_descrs, options):
     """Generate cfg from a list of asm_files. Produce funct names for each description
@@ -43,17 +46,20 @@ def gen_cfg(asm_file_descrs, options):
 
     # fix the direct calls so that they point to functions instead of strings
     for descr in asm_file_descrs:
-        descr_functs = [cfg.funct(descr.filename + '.' + n) for n in descr.funct_names]
+        descr_functs = \
+            [cfg.funct(descr.filename + '.' + n) for n in descr.funct_names]
         for funct in descr_functs:
             for dir_call_site in funct.direct_call_sites:
                 target_name = dir_call_site.targets[0]
                 if target_name in descr.funct_names:
-                    dir_call_site.targets[0] = cfg.funct(descr.filename + '.' + target_name)
+                    dir_call_site.targets[0] = cfg.funct(descr.filename + 
+                        '.' + target_name)
                 else:
                     for glob_funct in global_functs:
                         if glob_funct.asm_name == target_name:
                             dir_call_site.targets[0] = (
-                                    cfg.funct(glob_funct.asm_filename + '.' + target_name))
+                                    cfg.funct(glob_funct.asm_filename + 
+                                        '.' + target_name))
                             break
                     else:
                         # the function is not defined in the source files
@@ -63,13 +69,13 @@ def gen_cfg(asm_file_descrs, options):
     # the direct call lists shouldn't be used because they are polluted with the
     # PLT calls, for which only the plt function name is known
     for funct in cfg:
-        del(funct.direct_call_sites)
+        del funct.direct_call_sites
                         
     try:
         build_indir_targets(cfg, src_filename_set, options)
         build_ret_dicts(cfg)
     except NoTypeFile as warning:
-        build_ret_dicts(cfg, True)
+        build_ret_dicts(cfg)
         eprint(warning)
 
 
@@ -81,16 +87,17 @@ def extract_funct(asm_file, funct_name, line_num, dwarf_loc):
     File pointer must point at first instruction of the function. The return 
     dictionary and target list of site are not built here.
 
-    Only fields initialized in a function's contstructor are initialized. However,
-    each site of a function has its return dictionary linked to the function's 
-    return dictionary
+    Only fields initialized in a function's contstructor are initialized. 
+    However, each site of a function has its return dictionary linked to the 
+    function's return dictionary
     """
     start_line_num = line_num
     call_list = ["call","callf", "callq"]
     returns = ["ret", "retf", "iret", "retq", "iretq"]
-    jmp_list = ["jo","jno","jb","jnae","jc","jnb","jae","jnc","jz","je","jnz",
-                "jne","jbe","jna","jnbe","ja","js","jns","jp","jpe","jnp","jpo","jl",
-                "jnge","jnl","jge","jle","jng","jnle","jg","jecxz","jrcxz","jmp","jmpe"]
+    jmp_list = ["jo", "jno", "jb", "jnae", "jc", "jnb", "jae", "jnc", "jz", 
+                "je", "jnz", "jne", "jbe", "jna", "jnbe", "ja", "js", "jns", 
+                "jp", "jpe", "jnp", "jpo", "jl", "jnge", "jnl", "jge", "jle",
+                "jng", "jnle", "jg", "jecxz", "jrcxz", "jmp", "jmpe"]
     CALL_SITE, RETURN_SITE, INDIR_JMP_SITE, PLT_SITE, = 0, 1, 2, 3
 
     asm_line = asm_file.readline()
@@ -115,7 +122,7 @@ def extract_funct(asm_file, funct_name, line_num, dwarf_loc):
             line_num += 1
             continue
 
-        if (first_word[:len('.LFE')] == '.LFE'):
+        if first_word[:len('.LFE')] == '.LFE':
             break
         else:
             targets = []
@@ -131,15 +138,18 @@ def extract_funct(asm_file, funct_name, line_num, dwarf_loc):
         elif key_symbol in returns:
             # empty return dict passed so that every site's return dict is
             # a reference to the function's return dict
-            sites.append(funct_cfg.Site(line_num, empty_ret_dict, RETURN_SITE, dwarf_loc))
+            sites.append(funct_cfg.Site(line_num, empty_ret_dict, RETURN_SITE,
+                         dwarf_loc))
         elif key_symbol in jmp_list:
             if '%' in arg_str:
-                sites.append(funct_cfg.Site(line_num, targets, INDIR_JMP_SITE, dwarf_loc))
+                sites.append(funct_cfg.Site(line_num, targets, INDIR_JMP_SITE,
+                             dwarf_loc))
         asm_line = asm_file.readline()
         line_num += 1
     else:
         eprint(dwarf_loc.filename() + ':' + asm_file.name + ':' 
-                + start_line_num + ' error: unterminated function: ', funct_name)
+                + start_line_num + ' error: unterminated function: ',
+                funct_name)
         sys.exit(1)
 
     new_funct = funct_cfg.Function(funct_name, asm_file.name, 
@@ -180,7 +190,7 @@ def build_indir_targets(cfg, src_filename_set, options):
                 funct.src_filename + '.' + funct.asm_name, []) # fix for C++
         if fptr_sites:
             assign_targets(fptr_sites, funct, cfg, options)
-        del(funct.fptr_types)
+        del funct.fptr_types
 
 
 def assign_targets(fptr_sites, funct, cfg, options):
@@ -194,7 +204,8 @@ def assign_targets(fptr_sites, funct, cfg, options):
         return
 
     fptr_sites = sorted(fptr_sites, key=operator.attrgetter('src_line_num'))
-    funct.fptr_types = sorted(funct.fptr_types, key=operator.attrgetter('src_line_num'))
+    funct.fptr_types = sorted(funct.fptr_types,
+                              key=operator.attrgetter('src_line_num'))
 
     arbitrary_ftype = funct_cfg.FunctionType.arbitrary
 
@@ -211,7 +222,7 @@ def assign_targets(fptr_sites, funct, cfg, options):
                 'named \'' + funct.asm_name + '\'') # fix for C++
 
     # associate each fptr type with a site
-    while (i < len(funct.fptr_types) and j < len(fptr_sites)):
+    while i < len(funct.fptr_types) and j < len(fptr_sites):
         if funct.fptr_types[i].src_line_num < fptr_sites[j].src_line_num:
             print_fptr_type_unmatched_msg()
             i += 1
@@ -240,7 +251,10 @@ def assign_targets(fptr_sites, funct, cfg, options):
 def assign_targets_profiled(fptr_sites, funct, cfg, options):
     pass # TODO
     
-def increment_dict(dictionary, key, start = 1):
+def increment_dict(dictionary, key, start=1):
+    """
+    Increment the value of the 'start' item at 'key' in 'dictionary'
+    """
     dictionary[key] = dictionary.get(key, start - 1) + 1
     return dictionary[key]
 
@@ -248,10 +262,9 @@ def build_ret_dicts(cfg):
     """Builds return dictionaries of all functions in the CFG
 
     Notice that when a given function is being examined, it is all the other
-    functions' return dictionaries that are being built. After all, a function foo's
-    return dictionary depends on which functions call foo
+    functions' return dictionaries that are being built. After all, a function 
+    foo's return dictionary depends on which functions call foo
     """
-
     arbitrary_ftype = funct_cfg.FunctionType.arbitrary
     beg_multiplicity = 1
 
@@ -260,13 +273,15 @@ def build_ret_dicts(cfg):
         for site in funct.sites:
             if site.group == site.CALL_SITE:
                 for target in site.targets:
-                    increment_dict(call_dict, target.uniq_label, beg_multiplicity)
+                    increment_dict(call_dict, target.uniq_label,
+                                   beg_multiplicity)
 
         for target_label, multiplicity in call_dict.iteritems():
             try:
-                cfg.funct(target_label).ret_dict[funct.uniq_label] = multiplicity
+                cfg.funct(target_label).ret_dict[funct.uniq_label] = \
+                    multiplicity
             except KeyError:
-                eprint("warning: function cannot be found: " + target_label )
+                eprint("warning: function cannot be found: " + target_label)
 
 def read_function_types(src_filename_set, options):
     """Reads in function type information and stores it in a dict
@@ -356,4 +371,7 @@ def read_fptr_types(src_filename_set, options):
     return fp_types
 
 class NoTypeFile(IOError):
+    """
+    An IO exception representing the absense of a type file.
+    """
     pass
