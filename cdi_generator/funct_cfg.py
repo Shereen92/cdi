@@ -64,11 +64,15 @@ class Function:
         self.uniq_label = asm_filename + '.' + asm_name
         self.src_filename = src_filename
         self.body = []
+        self.clones = []
 
         # unitialized / improperly set until gen_cfg finishes
         self.ftype = None # function type
         self.ret_dict = dict()
         self.is_global = True
+    
+    def get_num_clones(self):
+        return len(self.clones)
         
     def get_cdi_line_num(self, file_content):   
         for line in file_content:

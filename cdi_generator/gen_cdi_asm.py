@@ -57,6 +57,7 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         # Perform cloning experiments (TODO: move to proper place)
         init_functToCallSites_map(all_functs)
         clone_function(all_functs[1], all_functs)
+        clone_function(all_functs[1], all_functs)
         for i in all_functs[1].sites:
             print(i.group)
             print(i.targets)
@@ -178,21 +179,28 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
 def clone_function(funct, functs):
     line_num = funct.get_cdi_line_num(Global.file_lines)
     copies = []
-    
+    clone_num = funct.get_num_clones() + 2
     end = funct.get_cdi_end_line_num(Global.file_lines, functs)
     start = line_num
     for line in Global.file_lines[start:]:       
         if(line_num < end):
-            copies.append(line.replace(funct.asm_name, funct.asm_name + "_2"))
+            if(line.startswith('.L')):
+                print(line)
+                #add _clone_num to all occurances
+            copies.append(line.replace(funct.asm_name, funct.asm_name + "_" + str(clone_num)))
         line_num += 1
         
     Global.file_lines[end:end] = copies
-    f,n = extract_funct_alt(copies, funct.asm_name + "_2", end)
+    
+    f,n = extract_funct_alt(copies, funct.asm_name + "_" + str(clone_num), end)
+    funct.clones.append(f)
+    """
     print("CLONED VERSION")
     for i in f.sites:
         print(i.group)
         print(i.targets)
     print("--------------")
+    """
     #print()
     return f
     
