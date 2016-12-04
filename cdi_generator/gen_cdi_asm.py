@@ -8,6 +8,7 @@ from eprint import eprint
 
 class Global:
     file_lines = []
+dwarf_loc = asm_parsing.DwarfSourceLoc()
 
 def gen_cdi_asm(cfg, asm_file_descrs, options):
     """Writes cdi compliant assembly from cfg and assembly file descriptions"""
@@ -56,7 +57,10 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         # Perform cloning experiments (TODO: move to proper place)
         init_functToCallSites_map(all_functs)
         clone_function(all_functs[1], all_functs)
-        
+        for i in all_functs[1].sites:
+            print(i.group)
+            print(i.targets)
+        print("--------------")
         finalize_output_file(asm_dest, Global.file_lines)
  
         asm_src.close()
@@ -103,7 +107,74 @@ def seek_file_to_line_number(file_handler, target_line_no):
             return file
     eprint("ERROR: target_line_no doesn't exist. Seeking failed.")
     return None
-     
+
+def extract_funct_alt(funct_lines, funct_name, starting_line_num):
+    """
+    Constructs a cloned function from an array of code lines. 
+    """
+    start_line_num = 0
+    call_list = ["call","callf", "callq"]
+    returns = ["ret", "retf", "iret", "retq", "iretq"]
+    jmp_list = ["jo", "jno", "jb", "jnae", "jc", "jnb", "jae", "jnc", "jz", 
+                "je", "jnz", "jne", "jbe", "jna", "jnbe", "ja", "js", "jns", 
+                "jp", "jpe", "jnp", "jpo", "jl", "jnge", "jnl", "jge", "jle",
+                "jng", "jnle", "jg", "jecxz", "jrcxz", "jmp", "jmpe"]
+    CALL_SITE, RETURN_SITE, INDIR_JMP_SITE, PLT_SITE, = 0, 1, 2, 3
+    
+    comment_continues = False
+    sites = []
+    direct_call_sites = []
+    empty_ret_dict = dict()
+    line_num = starting_line_num
+    
+    for asm_line in funct_lines:
+        asm_parsing.update_dwarf_loc(asm_line, dwarf_loc)
+        try:
+            first_word = asm_line.split()[0]
+        except IndexError:
+            # ignore empty line
+            asm_line = asm_file.readline()
+            line_num += 1
+            continue
+
+        if first_word[:len('.LFE')] == '.LFE':
+            break
+        else:
+            targets = []
+            labels, key_symbol, arg_str, comment_continues = (
+                    asm_parsing.decode_line(asm_line, comment_continues))
+
+        if key_symbol in call_list:
+            new_site = funct_cfg.Site(line_num, targets, CALL_SITE, dwarf_loc)
+            if '%' not in arg_str:
+                new_site.targets.append(arg_str)
+                direct_call_sites.append(new_site)
+            sites.append(new_site)
+        elif key_symbol in returns:
+            # empty return dict passed so that every site's return dict is
+            # a reference to the function's return dict
+            sites.append(funct_cfg.Site(line_num, empty_ret_dict, RETURN_SITE,
+                         dwarf_loc))
+        elif key_symbol in jmp_list:
+            if '%' in arg_str:
+                sites.append(funct_cfg.Site(line_num, targets, INDIR_JMP_SITE,
+                             dwarf_loc))
+        line_num += 1
+    else:
+        eprint(dwarf_loc.filename() + ':' + ' ' + ':' 
+                + start_line_num + ' error: unterminated function: ',
+                funct_name)
+        sys.exit(1)
+
+    # new_funct = funct_cfg.Function(funct_name, asm_file.name, 
+            #dwarf_loc.filename(), sites)
+    new_funct = funct_cfg.Function(funct_name, ' ', 
+            dwarf_loc.filename(), sites, starting_line_num)
+    new_funct.direct_call_sites = direct_call_sites
+    new_funct.ret_dict = empty_ret_dict
+
+    return new_funct, line_num
+         
 def clone_function(funct, functs):
     line_num = funct.get_cdi_line_num(Global.file_lines)
     copies = []
@@ -114,8 +185,16 @@ def clone_function(funct, functs):
         if(line_num < end):
             copies.append(line.replace(funct.asm_name, funct.asm_name + "_2"))
         line_num += 1
-    
+        
     Global.file_lines[end:end] = copies
+    f,n = extract_funct_alt(copies, funct.asm_name + "_2", end)
+    print("CLONED VERSION")
+    for i in f.sites:
+        print(i.group)
+        print(i.targets)
+    print("--------------")
+    #print()
+    return f
     
 def cdi_asm_name(asm_name):
     assert asm_name[-2:] == '.s'
