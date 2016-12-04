@@ -7,7 +7,7 @@ import asm_parsing
 from eprint import eprint
 
 class Global:
-    Global.file_lines = []
+    file_lines = []
 
 def gen_cdi_asm(cfg, asm_file_descrs, options):
     """Writes cdi compliant assembly from cfg and assembly file descriptions"""
@@ -64,7 +64,7 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
 
 def finalize_output_file(output_file, code_lines):
     for line in code_lines:
-            output_file.write(code_lines + '\n')
+            output_file.write(line + '\n')
  
 functToCallSitesMap = dict() 
       
