@@ -131,6 +131,7 @@ def extract_funct(asm_file, funct_name, line_num, dwarf_loc):
 
         if key_symbol in call_list:
             new_site = funct_cfg.Site(line_num, targets, CALL_SITE, dwarf_loc)
+  
             if '%' not in arg_str:
                 new_site.targets.append(arg_str)
                 direct_call_sites.append(new_site)

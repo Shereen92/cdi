@@ -71,7 +71,7 @@ _CDI_benchmark.s.mov_TO_benchmark.s.mov_1:
 	movl	-24(%rbp), %eax
 	movl	%eax, %esi
 	movl	$1, %edi
-	call	mov
+	call	mov_2
 _CDI_benchmark.s.mov_TO_benchmark.s.mov_2:
 	.loc 1 24 0
 	movl	-20(%rbp), %eax
@@ -113,6 +113,117 @@ _CDI_benchmark.s.mov_TO_benchmark.s.mov_3:
 .LC1:
 	.string	"Disks     Moves\n"
 .LC2:
+	.string	"%3d  %04X%04X\n"
+	.text
+	.globl	hanoi_main
+	.type	hanoi_main, @function
+mov_2:
+.globl	benchmark.s.mov_2
+benchmark.s.mov_2:
+.LFB0_2:
+	.file 1 "benchmark.c"
+	.loc 1 12 0
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$32, %rsp
+	movl	%edi, -20(%rbp)
+	movl	%esi, -24(%rbp)
+	movl	%edx, -28(%rbp)
+	.loc 1 14 0
+	cmpl	$1, -20(%rbp)
+	jne	.L2_2
+	.loc 1 16 0
+	movl	-24(%rbp), %eax
+	cltq
+	movl	num(,%rax,4), %eax
+	leal	-1(%rax), %edx
+	movl	-24(%rbp), %eax
+	cltq
+	movl	%edx, num(,%rax,4)
+	.loc 1 17 0
+	movl	-28(%rbp), %eax
+	cltq
+	movl	num(,%rax,4), %eax
+	leal	1(%rax), %edx
+	movl	-28(%rbp), %eax
+	cltq
+	movl	%edx, num(,%rax,4)
+	.loc 1 18 0
+	movq	count(%rip), %rax
+	addq	$1, %rax
+	movq	%rax, count(%rip)
+	.loc 1 19 0
+	movl	$0, %eax
+	jmp	.L3_2
+.L2_2:
+	.loc 1 21 0
+	movl	-24(%rbp), %edx
+	movl	-28(%rbp), %eax
+	addl	%edx, %eax
+	movl	$6, %edx
+	subl	%eax, %edx
+	movl	%edx, %eax
+	movl	%eax, -4(%rbp)
+	.loc 1 22 0
+	movl	-20(%rbp), %eax
+	leal	-1(%rax), %ecx
+	movl	-4(%rbp), %edx
+	movl	-24(%rbp), %eax
+	movl	%eax, %esi
+	movl	%ecx, %edi
+	call	mov_2
+_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_1:
+	.loc 1 23 0
+	movl	-28(%rbp), %edx
+	movl	-24(%rbp), %eax
+	movl	%eax, %esi
+	movl	$1, %edi
+	call	mov
+_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_2:
+	.loc 1 24 0
+	movl	-20(%rbp), %eax
+	leal	-1(%rax), %ecx
+	movl	-28(%rbp), %edx
+	movl	-4(%rbp), %eax
+	movl	%eax, %esi
+	movl	%ecx, %edi
+	call	mov_2
+_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_3:
+	.loc 1 25 0
+	movl	$0, %eax
+.L3_2:
+	.loc 1 26 0
+	leave
+	.cfi_def_cfa 7, 8
+	addq $8, %rsp
+	cmpq	$_CDI_benchmark.s.mov_2_TO_benchmark.s.hanoi_main_1, -8(%rsp)
+	je	_CDI_benchmark.s.mov_2_TO_benchmark.s.hanoi_main_1
+	cmpq	$_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_1, -8(%rsp)
+	je	_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_1
+	cmpq	$_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_2, -8(%rsp)
+	je	_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_2
+	cmpq	$_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_3, -8(%rsp)
+	je	_CDI_benchmark.s.mov_2_TO_benchmark.s.mov_2_3
+	movq	 $.CDI_sled_id_1, %rsi
+	movq	$.CDI_sled_id_1_len, %rdx
+	call	_CDI_abort
+.CDI_sled_id_1:
+	.string	"benchmark.c:26:0:benchmark.s id=1"
+	.set	.CDI_sled_id_1_len, .-.CDI_sled_id_1
+	.cfi_endproc
+.LFE0_2:
+	.size	mov_2,	.-mov_2
+	.section	.rodata
+	.align 8
+.LC0_2:
+	.string	"Towers of Hanoi Puzzle Test Program\n"
+.LC1_2:
+	.string	"Disks     Moves\n"
+.LC2_2:
 	.string	"%3d  %04X%04X\n"
 	.text
 	.globl	hanoi_main
@@ -202,93 +313,6 @@ _CDI_benchmark.s.mov_TO_benchmark.s.hanoi_main_1:
 	.cfi_endproc
 .LFE1:
 	.size	hanoi_main, .-hanoi_main
-	.globl	encipher
-	.type	encipher, @function
-hanoi_main_2:
-.globl	benchmark.s.hanoi_main_2
-benchmark.s.hanoi_main_2:
-.LFB1_2:
-	.loc 1 30 0
-	.cfi_startproc
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	subq	$16, %rsp
-	.loc 1 31 0
-	movl	$0, -8(%rbp)
-	.loc 1 33 0
-	movl	$.LC0, %edi
-	movl	$0, %eax
-	call	tfp_printf
-	.loc 1 34 0
-	movl	$.LC1, %edi
-	movl	$0, %eax
-	call	tfp_printf
-	.loc 1 36 0
-	movl	$0, -4(%rbp)
-.L7_2:
-	.loc 1 40 0
-	addl	$1, -4(%rbp)
-	.loc 1 41 0
-	movl	$0, num(%rip)
-	.loc 1 42 0
-	movl	-4(%rbp), %eax
-	movl	%eax, num+4(%rip)
-	.loc 1 43 0
-	movl	$0, num+8(%rip)
-	.loc 1 44 0
-	movl	$0, num+12(%rip)
-	.loc 1 45 0
-	movq	$0, count(%rip)
-	.loc 1 47 0
-	movl	-4(%rbp), %eax
-	movl	$3, %edx
-	movl	$1, %esi
-	movl	%eax, %edi
-	call	mov
-_CDI_benchmark.s.mov_TO_benchmark.s.hanoi_main_2_1:
-	.loc 1 49 0
-	addl	$1, -8(%rbp)
-	.loc 1 50 0
-	movq	count(%rip), %rax
-	movzwl	%ax, %edx
-	movq	count(%rip), %rax
-	sarq	$16, %rax
-	movq	%rax, %rsi
-	movl	-4(%rbp), %eax
-	movq	%rdx, %rcx
-	movq	%rsi, %rdx
-	movl	%eax, %esi
-	movl	$.LC2, %edi
-	movl	$0, %eax
-	call	tfp_printf
-	.loc 1 52 0
-	cmpl	$30, -4(%rbp)
-	je	.L10_2
-	.loc 1 40 0
-	jmp	.L7_2
-.L10_2:
-	.loc 1 52 0
-	nop
-	.loc 1 54 0
-	movl	$0, %eax
-	.loc 1 55 0
-	leave
-	.cfi_def_cfa 7, 8
-	addq $8, %rsp
-	cmpq	$_CDI_benchmark.s.hanoi_main_2_TO_benchmark.s.main_1, -8(%rsp)
-	je	_CDI_benchmark.s.hanoi_main_2_TO_benchmark.s.main_1
-	movq	 $.CDI_sled_id_2, %rsi
-	movq	$.CDI_sled_id_2_len, %rdx
-	call	_CDI_abort
-.CDI_sled_id_2:
-	.string	"benchmark.c:55:0:benchmark.s id=2"
-	.set	.CDI_sled_id_2_len, .-.CDI_sled_id_2
-	.cfi_endproc
-.LFE1_2:
-	.size	hanoi_main_2, .-hanoi_main_2
 	.globl	encipher
 	.type	encipher, @function
 encipher:
@@ -1529,61 +1553,10 @@ _CDI_benchmark.s.cipher_main_TO_benchmark.s.main_1:
 	.string	"keytext"
 	.ident	"GCC: (GNU) 6.1.0"
 	.section	.note.GNU-stack,"",@progbits
-.LASF16:
-	.string	"Loops"
-.LASF20:
-	.string	"main"
-.LASF1:
-	.string	"unsigned int"
-.LASF18:
-	.string	"benchmark.c"
-.LASF15:
-	.string	"disk"
-.LASF8:
-	.string	"newplain"
-.LASF14:
-	.string	"hanoi_main"
-.LASF0:
-	.string	"sizetype"
-.LASF17:
-	.string	"GNU C11 6.1.0 -mtune=generic -march=x86-64 -g"
-.LASF3:
-	.string	"long int"
-.LASF4:
-	.string	"keytext"
+g	"keytext"
 	.ident	"GCC: (GNU) 6.1.0"
 	.section	.note.GNU-stack,"",@progbits
-b128 0x3
-	.uleb128 0xe
-	.uleb128 0x3a
-	.uleb128 0xb
-	.uleb128 0x3b
-	.uleb128 0xb
-	.uleb128 0x49
-	.uleb128 0x13
-	.uleb128 0x11
-	.uleb128 0x1
-	.uleb128 0x12
-	.uleb128 0x7
-	.uleb128 0x40
-	.uleb128 0x18
-	.uleb128 0x2116
-	.uleb128 0x19
-	.byte	0
-	.byte	0
-	.uleb128 0xb
-	.uleb128 0x2e
-	.byte	0x1
-	.uleb128 0x3f
-	.uleb128 0x19
-	.uleb128 0x3
-	.uleb128 0xe
-	.uleb128 0x3a
-	.uleb128 0xb
-	.uleb128 0x3b
-	.uleb128 0xb
-	.uleb128 0x27
-	.uleb128 0x19
+uleb128 0x19
 	.uleb128 0x49
 	.uleb128 0x13
 	.uleb128 0x11

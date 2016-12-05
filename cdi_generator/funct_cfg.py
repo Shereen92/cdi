@@ -92,7 +92,12 @@ class Function:
     
     def get_num_clones(self):
         return len(self.clones)
-        
+
+    def register_return_site(self, line):
+        if line[-1] == '\n':
+            line = line[:-1]
+        self.cdi_return_sites.append(line)
+
     def get_cdi_line_num(self, file_content):   
         for line in file_content:
             if self.asm_name in line:
@@ -173,6 +178,7 @@ class Site:
                 type_of_site == Site.RETURN_SITE or
                 type_of_site == Site.INDIR_JMP_SITE)
 
+        self.actual_line = ""
         self.asm_line_num = line_num
         self.group = type_of_site
         self.targets = targets
@@ -180,3 +186,9 @@ class Site:
             self.src_line_num = dwarf_loc.line_num
         else:
             self.src_line_num = ''
+
+    def register_actual_line(self, line):
+        if line[-1] == '\n':
+            line = line[:-1]
+        self.actual_line = line
+            
