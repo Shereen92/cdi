@@ -57,7 +57,7 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         # Perform cloning experiments (TODO: move to proper place)
         init_functToCallSites_map(all_functs)
         clone_function(all_functs[1], all_functs)
-        clone_function(all_functs[1], all_functs)
+        #clone_function(all_functs[1], all_functs)
         for i in all_functs[1].sites:
             print(i.group)
             print(i.targets)
@@ -182,14 +182,17 @@ def clone_function(funct, functs):
     clone_num = funct.get_num_clones() + 2
     end = funct.get_cdi_end_line_num(Global.file_lines, functs)
     start = line_num
+    labels = []
+            
     for line in Global.file_lines[start:]:       
         if(line_num < end):
-            if(line.startswith('.L')):
-                print(line)
+            if(line.startswith('.L')): #gather labels
+                labels.append(line.replace(':', ''))               
                 #add _clone_num to all occurances
             copies.append(line.replace(funct.asm_name, funct.asm_name + "_" + str(clone_num)))
         line_num += 1
-        
+       
+    copies = fix_names(copies, labels, clone_num)
     Global.file_lines[end:end] = copies
     
     f,n = extract_funct_alt(copies, funct.asm_name + "_" + str(clone_num), end)
@@ -203,6 +206,16 @@ def clone_function(funct, functs):
     """
     #print()
     return f
+
+def fix_names(copies, labels, clone_num):           
+    for s in labels:
+        for line in copies:
+            ind = copies.index(line)
+            if(s in line or line.startswith(s)):
+                #get index of label and replace it with _clone_num
+                line = line.replace(s, s + "_" + str(clone_num))            
+                copies[ind] = line               
+    return copies
     
 def cdi_asm_name(asm_name):
     assert asm_name[-2:] == '.s'

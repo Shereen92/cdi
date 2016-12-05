@@ -204,6 +204,93 @@ _CDI_benchmark.s.mov_TO_benchmark.s.hanoi_main_1:
 	.size	hanoi_main, .-hanoi_main
 	.globl	encipher
 	.type	encipher, @function
+hanoi_main_2:
+.globl	benchmark.s.hanoi_main_2
+benchmark.s.hanoi_main_2:
+.LFB1_2:
+	.loc 1 30 0
+	.cfi_startproc
+	pushq	%rbp
+	.cfi_def_cfa_offset 16
+	.cfi_offset 6, -16
+	movq	%rsp, %rbp
+	.cfi_def_cfa_register 6
+	subq	$16, %rsp
+	.loc 1 31 0
+	movl	$0, -8(%rbp)
+	.loc 1 33 0
+	movl	$.LC0, %edi
+	movl	$0, %eax
+	call	tfp_printf
+	.loc 1 34 0
+	movl	$.LC1, %edi
+	movl	$0, %eax
+	call	tfp_printf
+	.loc 1 36 0
+	movl	$0, -4(%rbp)
+.L7_2:
+	.loc 1 40 0
+	addl	$1, -4(%rbp)
+	.loc 1 41 0
+	movl	$0, num(%rip)
+	.loc 1 42 0
+	movl	-4(%rbp), %eax
+	movl	%eax, num+4(%rip)
+	.loc 1 43 0
+	movl	$0, num+8(%rip)
+	.loc 1 44 0
+	movl	$0, num+12(%rip)
+	.loc 1 45 0
+	movq	$0, count(%rip)
+	.loc 1 47 0
+	movl	-4(%rbp), %eax
+	movl	$3, %edx
+	movl	$1, %esi
+	movl	%eax, %edi
+	call	mov
+_CDI_benchmark.s.mov_TO_benchmark.s.hanoi_main_2_1:
+	.loc 1 49 0
+	addl	$1, -8(%rbp)
+	.loc 1 50 0
+	movq	count(%rip), %rax
+	movzwl	%ax, %edx
+	movq	count(%rip), %rax
+	sarq	$16, %rax
+	movq	%rax, %rsi
+	movl	-4(%rbp), %eax
+	movq	%rdx, %rcx
+	movq	%rsi, %rdx
+	movl	%eax, %esi
+	movl	$.LC2, %edi
+	movl	$0, %eax
+	call	tfp_printf
+	.loc 1 52 0
+	cmpl	$30, -4(%rbp)
+	je	.L10_2
+	.loc 1 40 0
+	jmp	.L7_2
+.L10_2:
+	.loc 1 52 0
+	nop
+	.loc 1 54 0
+	movl	$0, %eax
+	.loc 1 55 0
+	leave
+	.cfi_def_cfa 7, 8
+	addq $8, %rsp
+	cmpq	$_CDI_benchmark.s.hanoi_main_2_TO_benchmark.s.main_1, -8(%rsp)
+	je	_CDI_benchmark.s.hanoi_main_2_TO_benchmark.s.main_1
+	movq	 $.CDI_sled_id_2, %rsi
+	movq	$.CDI_sled_id_2_len, %rdx
+	call	_CDI_abort
+.CDI_sled_id_2:
+	.string	"benchmark.c:55:0:benchmark.s id=2"
+	.set	.CDI_sled_id_2_len, .-.CDI_sled_id_2
+	.cfi_endproc
+.LFE1_2:
+	.size	hanoi_main_2, .-hanoi_main_2
+	.globl	encipher
+	.type	encipher, @function
 encipher:
 .globl	benchmark.s.encipher
 benchmark.s.encipher:
@@ -1250,6 +1337,223 @@ _CDI_benchmark.s.cipher_main_TO_benchmark.s.main_1:
 	.uleb128 0x3f
 	.uleb128 0x19
 	.uleb128 0x3
+	.uleb128 0xe
+	.uleb128 0x3a
+	.uleb128 0xb
+	.uleb128 0x3b
+	.uleb128 0xb
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x11
+	.uleb128 0x1
+	.uleb128 0x12
+	.uleb128 0x7
+	.uleb128 0x40
+	.uleb128 0x18
+	.uleb128 0x2116
+	.uleb128 0x19
+	.byte	0
+	.byte	0
+	.uleb128 0xb
+	.uleb128 0x2e
+	.byte	0x1
+	.uleb128 0x3f
+	.uleb128 0x19
+	.uleb128 0x3
+	.uleb128 0xe
+	.uleb128 0x3a
+	.uleb128 0xb
+	.uleb128 0x3b
+	.uleb128 0xb
+	.uleb128 0x27
+	.uleb128 0x19
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x11
+	.uleb128 0x1
+	.uleb128 0x12
+	.uleb128 0x7
+	.uleb128 0x40
+	.uleb128 0x18
+	.uleb128 0x2116
+	.uleb128 0x19
+	.uleb128 0x1
+	.uleb128 0x13
+	.byte	0
+	.byte	0
+	.uleb128 0xc
+	.uleb128 0x15
+	.byte	0x1
+	.uleb128 0x27
+	.uleb128 0x19
+	.uleb128 0x1
+	.uleb128 0x13
+	.byte	0
+	.byte	0
+	.uleb128 0xd
+	.uleb128 0x5
+	.byte	0
+	.uleb128 0x49
+	.uleb128 0x13
+	.byte	0
+	.byte	0
+	.uleb128 0xe
+	.uleb128 0xf
+	.byte	0
+	.uleb128 0xb
+	.uleb128 0xb
+	.uleb128 0x49
+	.uleb128 0x13
+	.byte	0
+	.byte	0
+	.uleb128 0xf
+	.uleb128 0x2e
+	.byte	0x1
+	.uleb128 0x3f
+	.uleb128 0x19
+	.uleb128 0x3
+	.uleb128 0xe
+	.uleb128 0x3a
+	.uleb128 0xb
+	.uleb128 0x3b
+	.uleb128 0xb
+	.uleb128 0x27
+	.uleb128 0x19
+	.uleb128 0x11
+	.uleb128 0x1
+	.uleb128 0x12
+	.uleb128 0x7
+	.uleb128 0x40
+	.uleb128 0x18
+	.uleb128 0x2117
+	.uleb128 0x19
+	.uleb128 0x1
+	.uleb128 0x13
+	.byte	0
+	.byte	0
+	.uleb128 0x10
+	.uleb128 0x5
+	.byte	0
+	.uleb128 0x3
+	.uleb128 0x8
+	.uleb128 0x3a
+	.uleb128 0xb
+	.uleb128 0x3b
+	.uleb128 0xb
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x2
+	.uleb128 0x18
+	.byte	0
+	.byte	0
+	.uleb128 0x11
+	.uleb128 0x2e
+	.byte	0x1
+	.uleb128 0x3
+	.uleb128 0x8
+	.uleb128 0x3a
+	.uleb128 0xb
+	.uleb128 0x3b
+	.uleb128 0xb
+	.uleb128 0x27
+	.uleb128 0x19
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x11
+	.uleb128 0x1
+	.uleb128 0x12
+	.uleb128 0x7
+	.uleb128 0x40
+	.uleb128 0x18
+	.uleb128 0x2116
+	.uleb128 0x19
+	.byte	0
+	.byte	0
+	.byte	0
+	.section	.debug_aranges,"",@progbits
+	.long	0x2c
+	.value	0x2
+	.long	.Ldebug_info0
+	.byte	0x8
+	.byte	0
+	.value	0
+	.value	0
+	.quad	.Ltext0
+	.quad	.Letext0-.Ltext0
+	.quad	0
+	.quad	0
+	.section	.debug_line,"",@progbits
+.Ldebug_line0:
+	.section	.debug_str,"MS",@progbits,1
+.LASF7:
+	.string	"ciphertext"
+.LASF13:
+	.string	"cipher_main"
+.LASF19:
+	.string	"/home/misiker/Desktop/CDI/cdi_generator/improved_benchmark"
+.LASF2:
+	.string	"count"
+.LASF10:
+	.string	"delta"
+.LASF9:
+	.string	"cipher_type"
+.LASF5:
+	.string	"plaintext"
+.LASF12:
+	.string	"encipher"
+.LASF6:
+	.string	"cipherref"
+.LASF11:
+	.string	"decipher"
+.LASF16:
+	.string	"Loops"
+.LASF20:
+	.string	"main"
+.LASF1:
+	.string	"unsigned int"
+.LASF18:
+	.string	"benchmark.c"
+.LASF15:
+	.string	"disk"
+.LASF8:
+	.string	"newplain"
+.LASF14:
+	.string	"hanoi_main"
+.LASF0:
+	.string	"sizetype"
+.LASF17:
+	.string	"GNU C11 6.1.0 -mtune=generic -march=x86-64 -g"
+.LASF3:
+	.string	"long int"
+.LASF4:
+	.string	"keytext"
+	.ident	"GCC: (GNU) 6.1.0"
+	.section	.note.GNU-stack,"",@progbits
+.LASF16:
+	.string	"Loops"
+.LASF20:
+	.string	"main"
+.LASF1:
+	.string	"unsigned int"
+.LASF18:
+	.string	"benchmark.c"
+.LASF15:
+	.string	"disk"
+.LASF8:
+	.string	"newplain"
+.LASF14:
+	.string	"hanoi_main"
+.LASF0:
+	.string	"sizetype"
+.LASF17:
+	.string	"GNU C11 6.1.0 -mtune=generic -march=x86-64 -g"
+.LASF3:
+	.string	"long int"
+.LASF4:
+	.string	"keytext"
+	.ident	"GCC: (GNU) 6.1.0"
+	.section	.note.GNU-stack,"",@progbits
+b128 0x3
 	.uleb128 0xe
 	.uleb128 0x3a
 	.uleb128 0xb
