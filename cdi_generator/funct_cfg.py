@@ -52,6 +52,24 @@ class FunctControlFlowGraphIterator:
     def next(self):
         return self.cfg_iter.next()
 
+class CDIRetSite:
+    """
+    A container for the 2 lines that compose a ret site.
+    """
+    def __init__(self, line_1, line_2):
+        """
+        "lines" is a length 2 list. The first line looks something like...
+        cmpq	$_CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_1, -8(%rsp)
+        while the second line looks something like...
+        je	_CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_1
+        """
+        self.line_1 = line_1
+        self.line_2 = line_2
+        
+    def GetLineNumbers(self, file_content):
+        return file_content.index(self.line_1), \
+            file_content.index(self.line_2)
+        
 class Function:
     def __init__(self, asm_name, asm_filename, src_filename, sites, 
                  asm_line_num):
@@ -65,7 +83,8 @@ class Function:
         self.src_filename = src_filename
         self.body = []
         self.clones = []
-
+        self.cdi_return_sites = []
+        
         # unitialized / improperly set until gen_cfg finishes
         self.ftype = None # function type
         self.ret_dict = dict()

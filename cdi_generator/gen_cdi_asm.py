@@ -194,6 +194,20 @@ def clone_function(funct, functs):
     
     f,n = extract_funct_alt(copies, funct.asm_name + "_" + str(clone_num), end)
     funct.clones.append(f)
+    
+    # Prepare call sites.
+    print "CALL SITES for function clone's parent: " + funct.asm_name
+    for site in funct.sites:
+        if site.group == site.CALL_SITE:
+            for target in site.targets:
+                print target.asm_name + " @ " + str(target.asm_line_num)
+                
+    print "RET SITES for function clone's parent: " + funct.asm_name
+    for site in funct.sites:
+        if site.group == site.RETURN_SITE:
+            print str(site.asm_line_num)
+    print "FIN"
+    
     """
     print("CLONED VERSION")
     for i in f.sites:

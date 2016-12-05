@@ -138,8 +138,11 @@ def extract_funct(asm_file, funct_name, line_num, dwarf_loc):
         elif key_symbol in returns:
             # empty return dict passed so that every site's return dict is
             # a reference to the function's return dict
-            sites.append(funct_cfg.Site(line_num, empty_ret_dict, RETURN_SITE,
-                         dwarf_loc))
+            new_ret_site = funct_cfg.Site(line_num, empty_ret_dict, RETURN_SITE,
+                         dwarf_loc)
+            #new_ret_site.cdi_return_sites.append(funct_cfg.CDIRetSite(asm_file))
+            sites.append(new_ret_site)
+            
         elif key_symbol in jmp_list:
             if '%' in arg_str:
                 sites.append(funct_cfg.Site(line_num, targets, INDIR_JMP_SITE,
