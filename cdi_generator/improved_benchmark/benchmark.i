@@ -1,24 +1,19 @@
 # 1 "benchmark.c"
-# 1 "/home/misiker/Desktop/CDI/cdi_generator/improved_benchmark//"
+# 1 "/vagrant/cdi/cdi_generator/improved_benchmark//"
 # 1 "<built-in>"
 # 1 "<command-line>"
-# 31 "<command-line>"
 # 1 "/usr/include/stdc-predef.h" 1 3 4
-# 32 "<command-line>" 2
+# 1 "<command-line>" 2
 # 1 "benchmark.c"
 # 1 "printf.h" 1
 # 85 "printf.h"
-# 1 "/home/misiker/Desktop/CDI/GCC/dest/lib/gcc/x86_64-pc-linux-gnu/6.1.0/include/stdarg.h" 1 3 4
-# 40 "/home/misiker/Desktop/CDI/GCC/dest/lib/gcc/x86_64-pc-linux-gnu/6.1.0/include/stdarg.h" 3 4
-
-# 40 "/home/misiker/Desktop/CDI/GCC/dest/lib/gcc/x86_64-pc-linux-gnu/6.1.0/include/stdarg.h" 3 4
+# 1 "/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stdarg.h" 1 3 4
+# 40 "/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stdarg.h" 3 4
 typedef __builtin_va_list __gnuc_va_list;
-# 99 "/home/misiker/Desktop/CDI/GCC/dest/lib/gcc/x86_64-pc-linux-gnu/6.1.0/include/stdarg.h" 3 4
+# 98 "/usr/lib/gcc/x86_64-linux-gnu/4.8/include/stdarg.h" 3 4
 typedef __gnuc_va_list va_list;
 # 86 "printf.h" 2
 
-
-# 87 "printf.h"
 void tfp_printf(char *fmt, ...);
 # 2 "benchmark.c" 2
 
@@ -145,7 +140,7 @@ cipher_main(void)
   tfp_printf("  newplain:   0x%04X%04X 0x%04X%04X\n",
         newplain[0] >> 16, newplain[0] & 0xffff,
                newplain[1] >> 16, newplain[1] & 0xffff);
-
+  hanoi_main();
   return 0;
 }
 

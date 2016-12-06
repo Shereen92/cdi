@@ -123,7 +123,7 @@ cipher_main(void)
   printf("  newplain:   0x%04X%04X 0x%04X%04X\n",
 	       newplain[0] >> 16, newplain[0] & 0xffff,
                newplain[1] >> 16, newplain[1] & 0xffff);
-
+  hanoi_main();
   return 0;
 }
 
