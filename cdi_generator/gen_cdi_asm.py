@@ -84,13 +84,6 @@ def eliminate_extra_return_sites(ret_map):
     for f in functs:
         return_sites_for_funct = f.cdi_return_sites
         
-        print("-----")
-        print("Function " + f.asm_name + " from file " + f.asm_filename)
-        print("The returns for this function are ")
-        for i in ret_map[f]:
-            print(i)
-        print("---end---")
-        
         # ret_map[x] and returns_sites_for_funct hold different formats of what is essentially the same data.
         # The former holds labels, while the latter holds actual, full call instructions.
         # We convert the former to the latter for comparisons sake.
@@ -102,8 +95,12 @@ def eliminate_extra_return_sites(ret_map):
             temp_label = temp_label + ", -8(%rsp)"
             #label = temp_label
             ret_list[ret_list.index(label)] = temp_label
+            
+            print "RETLIST: " + "FUNCTION " + f.asm_name + " IN FILE " + f.asm_filename + " HAS RET SITE: " + temp_label 
         
         rets_to_delete = list(set(return_sites_for_funct) - set(ret_list))
+        
+        
         #print("RETS to DELETE ")
         #for r in rets_to_delete:
             #print "[" + r + "]"
@@ -117,36 +114,18 @@ def eliminate_extra_return_sites(ret_map):
         # BUG ZONE:
         # Cannot find # Not in list: '\tcmpq\t$_CDI_printf.s.out_2_TO_printf.s.tfp_printf_3, -8(%rsp)'
         # in Global.file_lines_map["printf.s"]
-            
+        # UPDATE: seems that we are deleting a ret site twice.
+        
         for line in Global.file_lines_map["printf.s"]:
             print "[" + line + ']'
+          
         
-            
-        for del_line in rets_to_delete:
-            ind = Global.file_lines_map[f.asm_filename].index(del_line)
-            print("DEL LINE -> [" + del_line + ']')
-            #for line in Global.file_lines_map[f.asm_filename]:
-            #print("COMPARING : ")
-            #print("LINE -> " + line)
-            #print "f.asm_filename:[" + f.asm_filename + ']'
         
-            #if line == del_line:
-            #    print "MATCH FOUND"
-            
-            for line in Global.file_lines_map[f.asm_filename]:
-                #print("COMPARING : ")
-                #print("LINE -> " + line)
-                #print("DEL LINE -> " + del_line)
-                
-                if('_CDI_printf.s.out_TO_printf.s.tfp_printf_2,' in line):
-                    print "FOUND"
-                if line == del_line:
-                    print "MATCH FOUND"
-                   
-            Global.file_lines_map[f.asm_filename].pop(ind)
-            Global.file_lines_map[f.asm_filename].pop(ind)
+          
+        
 
 def collect_calls(funct):
+    print "COLLECTINGCALLS: for funct " + funct.asm_name
     callsite_line = "\tcall\t" + funct.asm_name
     
     indices_map = defaultdict(list)
@@ -155,7 +134,7 @@ def collect_calls(funct):
         for line in Global.file_lines_map[key]:
             if callsite_line == line:
                 indices_map[key].append(line_no)    
-                #print("Adding " + str(line) + " at index " + str(line_no))
+                print("COLLECTINGCALLS: found " + str(line) + " at line # " + str(line_no) + " in file " + key)
             line_no += 1
     return indices_map
             
@@ -164,7 +143,7 @@ def distribute_callsites_among_clones(funct):
     funct must be an original function-- not a copy.
     """
     num_functs = len(funct.clones) + 1
-    functs = [funct]    
+    functs = [funct]
     for clone in funct.clones:
         functs.append(clone)
     
@@ -176,7 +155,7 @@ def distribute_callsites_among_clones(funct):
     # Perform call sled rewrite
     call_sites_map = collect_calls(funct)
     
-    for key in call_sites_map.keys():
+    for key in call_sites_map.keys(): # key is a filename
         for i in range(len(call_sites_map[key])):
             funct_num_to_assign_callsite_to = i % num_functs
             funct_to_assign_callsite_to = functs[funct_num_to_assign_callsite_to]
@@ -186,6 +165,7 @@ def distribute_callsites_among_clones(funct):
             Global.file_lines_map[key][current_call_site_line_number] = "\tcall\t" + funct_to_assign_callsite_to.asm_name       
             Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name) 
             funct_to_return_label_map[funct_to_assign_callsite_to].append(Global.file_lines_map[key][current_call_site_line_number+1])
+            #print "RETMAPCONSTR: Added line [" + Global.file_lines_map[key][current_call_site_line_number+1] + "] at line number " + str(current_call_site_line_number) + " in file [" + key + "] to funct [" + funct_to_assign_callsite_to + "]" 
     return funct_to_return_label_map
 
 def finalize_output_file(src_file_name, output_file, code_lines_map):
