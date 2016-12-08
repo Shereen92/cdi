@@ -86,6 +86,8 @@ printf.s.out:
 	addq $8, %rsp
 	cmpq	$_CDI_printf.s.out_TO_printf.s.outDgt_1, -8(%rsp)
 	je	_CDI_printf.s.out_TO_printf.s.outDgt_1
+	cmpq	$_CDI_printf.s.out_TO_printf.s.tfp_printf_2, -8(%rsp)
+	je	_CDI_printf.s.out_TO_printf.s.tfp_printf_2
 	movq	 $.CDI_sled_id_2, %rsi
 	movq	$.CDI_sled_id_2_len, %rdx
 	call	_CDI_abort
@@ -121,8 +123,10 @@ printf.s.out_2:
 	popq	%rbp
 	.cfi_def_cfa 7, 8
 	addq $8, %rsp
-	cmpq	$_CDI_printf.s.out_2_TO_printf.s.out_2Dgt_1, -8(%rsp)
-	je	_CDI_printf.s.out_2_TO_printf.s.out_2Dgt_1
+	cmpq	$_CDI_printf.s.out_2_TO_printf.s.tfp_printf_1, -8(%rsp)
+	je	_CDI_printf.s.out_2_TO_printf.s.tfp_printf_1
+	cmpq	$_CDI_printf.s.out_2_TO_printf.s.tfp_printf_3, -8(%rsp)
+	je	_CDI_printf.s.out_2_TO_printf.s.tfp_printf_3
 	movq	 $.CDI_sled_id_2, %rsi
 	movq	$.CDI_sled_id_2_len, %rdx
 	call	_CDI_abort
@@ -170,8 +174,8 @@ printf.s.outDgt:
 	addl	%edx, %eax
 	movsbl	%al, %eax
 	movl	%eax, %edi
-	call	out_2
-_CDI_printf.s.out_2_2_TO_printf.s.out_2_2Dgt_1:
+	call	out
+_CDI_printf.s.out_TO_printf.s.outDgt_1:
 	.loc 2 55 0 is_stmt 1 discriminator 8
 	movb	$1, zs(%rip)
 	.loc 2 56 0 discriminator 8
@@ -455,8 +459,8 @@ _CDI_printf.s.outchar_TO_printf.s.tfp_printf_1:
 	movl	%eax, num(%rip)
 	.loc 2 107 0
 	movl	$45, %edi
-	call	out
-_CDI_printf.s.out_TO_printf.s.tfp_printf_1:
+	call	out_2
+_CDI_printf.s.out_2_TO_printf.s.tfp_printf_1:
 .L34:
 	.loc 2 109 0
 	movl	$10000, %edi
@@ -578,8 +582,8 @@ _CDI_printf.s.out_TO_printf.s.tfp_printf_2:
 .L25:
 	.loc 2 131 0
 	movl	$37, %edi
-	call	out
-_CDI_printf.s.out_TO_printf.s.tfp_printf_3:
+	call	out_2
+_CDI_printf.s.out_2_TO_printf.s.tfp_printf_3:
 .L54:
 	.loc 2 133 0
 	nop
@@ -1224,17 +1228,7 @@ _CDI_printf.s.outchar_TO_printf.s.tfp_printf_3:
 	.string	"sizetype"
 	.ident	"GCC: (GNU) 6.1.0"
 	.section	.note.GNU-stack,"",@progbits
-d	0
-	.quad	0
-	.section	.debug_line,"",@progbits
-.Ldebug_line0:
-	.section	.debug_str,"MS",@progbits,1
-.LASF8:
-	.string	"/home/misiker/Desktop/CDI/cdi_generator/improved_benchmark"
-.LASF1:
-	.string	"unsigned int"
-.LASF7:
-	.string	"printf.c"
+tring	"printf.c"
 .LASF11:
 	.string	"tfp_printf"
 .LASF13:
@@ -1259,3 +1253,4 @@ d	0
 	.string	"sizetype"
 	.ident	"GCC: (GNU) 6.1.0"
 	.section	.note.GNU-stack,"",@progbits
+s
