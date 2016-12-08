@@ -83,14 +83,14 @@ def eliminate_extra_return_sites(ret_map):
     functs = ret_map.keys()
     for f in functs:
         return_sites_for_funct = f.cdi_return_sites
-        """
+        
         print("-----")
         print("Function " + f.asm_name + " from file " + f.asm_filename)
         print("The returns for this function are ")
         for i in ret_map[f]:
             print(i)
         print("---end---")
-        """
+        
         # ret_map[x] and returns_sites_for_funct hold different formats of what is essentially the same data.
         # The former holds labels, while the latter holds actual, full call instructions.
         # We convert the former to the latter for comparisons sake.
@@ -115,14 +115,30 @@ def eliminate_extra_return_sites(ret_map):
             ind = Global.file_lines_map[f.asm_filename].index(del_line)
             
             for line in Global.file_lines_map[f.asm_filename]:
-                print("COMPARING : ")
-                print("LINE -> " + line)
-                print("DEL LINE -> " + del_line)
+                #print("COMPARING : ")
+                #print("LINE -> " + line)
+                #print("DEL LINE -> " + del_line)
+                
+                if('_CDI_printf.s.out_TO_printf.s.tfp_printf_2,' in line):
+                    print "FOUND"
                 if line == del_line:
                     print "MATCH FOUND"
-                    
+                   
             Global.file_lines_map[f.asm_filename].pop(ind)
             Global.file_lines_map[f.asm_filename].pop(ind)
+
+def collect_calls(funct):
+    callsite_line = "\tcall\t" + funct.asm_name
+    
+    indices_map = defaultdict(list)
+    for key in Global.file_lines_map.keys():
+        line_no = 0
+        for line in Global.file_lines_map[key]:
+            if callsite_line == line:
+                indices_map[key].append(line_no)    
+                #print("Adding " + str(line) + " at index " + str(line_no))
+            line_no += 1
+    return indices_map
             
 def distribute_callsites_among_clones(funct):
     """
@@ -140,6 +156,7 @@ def distribute_callsites_among_clones(funct):
 
     # Perform call sled rewrite
     call_sites_map = collect_calls(funct)
+    
     for key in call_sites_map.keys():
         for i in range(len(call_sites_map[key])):
             funct_num_to_assign_callsite_to = i % num_functs
@@ -320,18 +337,6 @@ def clone_function(funct, functs):
     """
     #print()
     return f
-
-def collect_calls(funct):
-    callsite_line = "\tcall\t" + funct.asm_name
-    
-    indices_map = defaultdict(list)
-    for key in Global.file_lines_map.keys():
-        for line in Global.file_lines_map[key]:
-            if callsite_line == line:
-                indices_map[key].append(Global.file_lines_map[key].index(line))
-                
-    return indices_map
-
     
 def fix_names(copies, funct, labels, clone_num):           
     copies[0] = copies[0].replace(':', '') #remove :
