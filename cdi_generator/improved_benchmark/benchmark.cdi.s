@@ -96,12 +96,12 @@ _CDI_benchmark.s.mov_TO_benchmark.s.mov_3:
 	je	_CDI_benchmark.s.mov_TO_benchmark.s.mov_2
 	cmpq	$_CDI_benchmark.s.mov_TO_benchmark.s.mov_3, -8(%rsp)
 	je	_CDI_benchmark.s.mov_TO_benchmark.s.mov_3
-	movq	 $.CDI_sled_id_1, %rsi
-	movq	$.CDI_sled_id_1_len, %rdx
+	movq	 $.CDI_sled_id_6, %rsi
+	movq	$.CDI_sled_id_6_len, %rdx
 	call	_CDI_abort
-.CDI_sled_id_1:
-	.string	"benchmark.c:26:0:benchmark.s id=1"
-	.set	.CDI_sled_id_1_len, .-.CDI_sled_id_1
+.CDI_sled_id_6:
+	.string	"benchmark.c:26:0:benchmark.s id=6"
+	.set	.CDI_sled_id_6_len, .-.CDI_sled_id_6
 	.cfi_endproc
 .LFE0:
 	.size	mov, .-mov
@@ -134,10 +134,14 @@ benchmark.s.hanoi_main:
 	movl	$.LC0, %edi
 	movl	$0, %eax
 	call	tfp_printf
+.globl	_CDI_printf.s.tfp_printf_TO_benchmark.s.hanoi_main_1
+_CDI_printf.s.tfp_printf_TO_benchmark.s.hanoi_main_1:
 	.loc 1 34 0
 	movl	$.LC1, %edi
 	movl	$0, %eax
 	call	tfp_printf
+.globl	_CDI_printf.s.tfp_printf_TO_benchmark.s.hanoi_main_2
+_CDI_printf.s.tfp_printf_TO_benchmark.s.hanoi_main_2:
 	.loc 1 36 0
 	movl	$0, -8(%rbp)
 .L7:
@@ -176,6 +180,8 @@ _CDI_benchmark.s.mov_TO_benchmark.s.hanoi_main_1:
 	movl	$.LC2, %edi
 	movl	$0, %eax
 	call	tfp_printf
+.globl	_CDI_printf.s.tfp_printf_TO_benchmark.s.hanoi_main_3
+_CDI_printf.s.tfp_printf_TO_benchmark.s.hanoi_main_3:
 	.loc 1 52 0
 	cmpl	$30, -8(%rbp)
 	jne	.L5
@@ -191,105 +197,19 @@ _CDI_benchmark.s.mov_TO_benchmark.s.hanoi_main_1:
 	leave
 	.cfi_def_cfa 7, 8
 	addq $8, %rsp
+	cmpq	$_CDI_benchmark.s.hanoi_main_TO_benchmark.s.main_1, -8(%rsp)
+	je	_CDI_benchmark.s.hanoi_main_TO_benchmark.s.main_1
 	cmpq	$_CDI_benchmark.s.hanoi_main_TO_benchmark.s.cipher_main_1, -8(%rsp)
 	je	_CDI_benchmark.s.hanoi_main_TO_benchmark.s.cipher_main_1
-	movq	 $.CDI_sled_id_2, %rsi
-	movq	$.CDI_sled_id_2_len, %rdx
+	movq	 $.CDI_sled_id_7, %rsi
+	movq	$.CDI_sled_id_7_len, %rdx
 	call	_CDI_abort
-.CDI_sled_id_2:
-	.string	"benchmark.c:55:0:benchmark.s id=2"
-	.set	.CDI_sled_id_2_len, .-.CDI_sled_id_2
+.CDI_sled_id_7:
+	.string	"benchmark.c:55:0:benchmark.s id=7"
+	.set	.CDI_sled_id_7_len, .-.CDI_sled_id_7
 	.cfi_endproc
 .LFE1:
 	.size	hanoi_main, .-hanoi_main
-	.globl	encipher
-	.type	encipher, @function
-hanoi_main_2:
-.globl	benchmark.s.hanoi_main_2
-benchmark.s.hanoi_main_2:
-.LFB1_2:
-	.loc 1 30 0
-	.cfi_startproc
-	pushq	%rbp
-	.cfi_def_cfa_offset 16
-	.cfi_offset 6, -16
-	movq	%rsp, %rbp
-	.cfi_def_cfa_register 6
-	subq	$16, %rsp
-	.loc 1 31 0
-	movl	$0, -4(%rbp)
-	.loc 1 33 0
-	movl	$.LC0, %edi
-	movl	$0, %eax
-	call	tfp_printf
-	.loc 1 34 0
-	movl	$.LC1, %edi
-	movl	$0, %eax
-	call	tfp_printf
-	.loc 1 36 0
-	movl	$0, -8(%rbp)
-.L7_2:
-	.loc 1 40 0
-	addl	$1, -8(%rbp)
-	.loc 1 41 0
-	movl	$0, num(%rip)
-	.loc 1 42 0
-	movl	-8(%rbp), %eax
-	movl	%eax, num+4(%rip)
-	.loc 1 43 0
-	movl	$0, num+8(%rip)
-	.loc 1 44 0
-	movl	$0, num+12(%rip)
-	.loc 1 45 0
-	movq	$0, count(%rip)
-	.loc 1 47 0
-	movl	-8(%rbp), %eax
-	movl	$3, %edx
-	movl	$1, %esi
-	movl	%eax, %edi
-	call	mov
-_CDI_benchmark.s.mov_TO_benchmark.s.hanoi_main_2_1:
-	.loc 1 49 0
-	addl	$1, -4(%rbp)
-	.loc 1 50 0
-	movq	count(%rip), %rax
-	movzwl	%ax, %edx
-	movq	count(%rip), %rax
-	sarq	$16, %rax
-	movq	%rax, %rsi
-	movl	-8(%rbp), %eax
-	movq	%rdx, %rcx
-	movq	%rsi, %rdx
-	movl	%eax, %esi
-	movl	$.LC2, %edi
-	movl	$0, %eax
-	call	tfp_printf
-	.loc 1 52 0
-	cmpl	$30, -8(%rbp)
-	jne	.L5_2
-	.loc 1 52 0 is_stmt 0 discriminator 1
-	jmp	.L9_2
-.L5_2:
-	.loc 1 53 0 is_stmt 1
-	jmp	.L7_2
-.L9_2:
-	.loc 1 54 0
-	movl	$0, %eax
-	.loc 1 55 0
-	leave
-	.cfi_def_cfa 7, 8
-	addq $8, %rsp
-	cmpq	$_CDI_benchmark.s.hanoi_main_2_TO_benchmark.s.main_1, -8(%rsp)
-	je	_CDI_benchmark.s.hanoi_main_2_TO_benchmark.s.main_1
-	movq	 $.CDI_sled_id_2, %rsi
-	movq	$.CDI_sled_id_2_len, %rdx
-	call	_CDI_abort
-.CDI_sled_id_2:
-	.string	"benchmark.c:55:0:benchmark.s id=2"
-	.set	.CDI_sled_id_2_len, .-.CDI_sled_id_2
-	.cfi_endproc
-.LFE1_2:
-	.size	hanoi_main_2,	.-hanoi_main_2
 	.globl	encipher
 	.type	encipher, @function
 encipher:
@@ -394,12 +314,12 @@ benchmark.s.encipher:
 	je	_CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_1
 	cmpq	$_CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_2, -8(%rsp)
 	je	_CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_2
-	movq	 $.CDI_sled_id_3, %rsi
-	movq	$.CDI_sled_id_3_len, %rdx
+	movq	 $.CDI_sled_id_8, %rsi
+	movq	$.CDI_sled_id_8_len, %rdx
 	call	_CDI_abort
-.CDI_sled_id_3:
-	.string	"benchmark.c:74:0:benchmark.s id=3"
-	.set	.CDI_sled_id_3_len, .-.CDI_sled_id_3
+.CDI_sled_id_8:
+	.string	"benchmark.c:74:0:benchmark.s id=8"
+	.set	.CDI_sled_id_8_len, .-.CDI_sled_id_8
 	.cfi_endproc
 .LFE2:
 	.size	encipher, .-encipher
@@ -507,12 +427,12 @@ benchmark.s.decipher:
 	je	_CDI_benchmark.s.decipher_TO_benchmark.s.cipher_main_1
 	cmpq	$_CDI_benchmark.s.decipher_TO_benchmark.s.cipher_main_2, -8(%rsp)
 	je	_CDI_benchmark.s.decipher_TO_benchmark.s.cipher_main_2
-	movq	 $.CDI_sled_id_4, %rsi
-	movq	$.CDI_sled_id_4_len, %rdx
+	movq	 $.CDI_sled_id_9, %rsi
+	movq	$.CDI_sled_id_9_len, %rdx
 	call	_CDI_abort
-.CDI_sled_id_4:
-	.string	"benchmark.c:92:0:benchmark.s id=4"
-	.set	.CDI_sled_id_4_len, .-.CDI_sled_id_4
+.CDI_sled_id_9:
+	.string	"benchmark.c:92:0:benchmark.s id=9"
+	.set	.CDI_sled_id_9_len, .-.CDI_sled_id_9
 	.cfi_endproc
 .LFE3:
 	.size	decipher, .-decipher
@@ -589,12 +509,12 @@ _CDI_benchmark.s.decipher_TO_benchmark.s.cipher_main_1:
 _CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_1:
 	jmp	2f
 1:
-	movq	 $.CDI_sled_id_5, %rsi
-	movq	$.CDI_sled_id_5_len, %rdx
+	movq	 $.CDI_sled_id_10, %rsi
+	movq	$.CDI_sled_id_10_len, %rdx
 	call	_CDI_abort
-.CDI_sled_id_5:
-	.string	"benchmark.c:108:0:benchmark.s id=5"
-	.set	.CDI_sled_id_5_len, .-.CDI_sled_id_5
+.CDI_sled_id_10:
+	.string	"benchmark.c:108:0:benchmark.s id=10"
+	.set	.CDI_sled_id_10_len, .-.CDI_sled_id_10
 2:
 	.loc 1 109 0
 	movl	ciphertext(%rip), %edx
@@ -631,12 +551,12 @@ _CDI_benchmark.s.decipher_TO_benchmark.s.cipher_main_2:
 _CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_2:
 	jmp	2f
 1:
-	movq	 $.CDI_sled_id_6, %rsi
-	movq	$.CDI_sled_id_6_len, %rdx
+	movq	 $.CDI_sled_id_11, %rsi
+	movq	$.CDI_sled_id_11_len, %rdx
 	call	_CDI_abort
-.CDI_sled_id_6:
-	.string	"benchmark.c:112:0:benchmark.s id=6"
-	.set	.CDI_sled_id_6_len, .-.CDI_sled_id_6
+.CDI_sled_id_11:
+	.string	"benchmark.c:112:0:benchmark.s id=11"
+	.set	.CDI_sled_id_11_len, .-.CDI_sled_id_11
 2:
 	.loc 1 113 0
 	movl	newplain(%rip), %edx
@@ -657,6 +577,8 @@ _CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_2:
 	movl	$.LC3, %edi
 	movl	$0, %eax
 	call	tfp_printf
+.globl	_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_1
+_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_1:
 	.loc 1 119 0
 	movl	plaintext+4(%rip), %eax
 	.loc 1 117 0
@@ -680,6 +602,8 @@ _CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_2:
 	movl	$.LC4, %edi
 	movl	$0, %eax
 	call	tfp_printf
+.globl	_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_2
+_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_2:
 	.loc 1 122 0
 	movl	ciphertext+4(%rip), %eax
 	.loc 1 120 0
@@ -703,6 +627,8 @@ _CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_2:
 	movl	$.LC5, %edi
 	movl	$0, %eax
 	call	tfp_printf
+.globl	_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_3
+_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_3:
 	.loc 1 125 0
 	movl	newplain+4(%rip), %eax
 	.loc 1 123 0
@@ -726,6 +652,8 @@ _CDI_benchmark.s.encipher_TO_benchmark.s.cipher_main_2:
 	movl	$.LC6, %edi
 	movl	$0, %eax
 	call	tfp_printf
+.globl	_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_4
+_CDI_printf.s.tfp_printf_TO_benchmark.s.cipher_main_4:
 	.loc 1 126 0
 	call	hanoi_main
 _CDI_benchmark.s.hanoi_main_TO_benchmark.s.cipher_main_1:
@@ -738,12 +666,12 @@ _CDI_benchmark.s.hanoi_main_TO_benchmark.s.cipher_main_1:
 	addq $8, %rsp
 	cmpq	$_CDI_benchmark.s.cipher_main_TO_benchmark.s.main_1, -8(%rsp)
 	je	_CDI_benchmark.s.cipher_main_TO_benchmark.s.main_1
-	movq	 $.CDI_sled_id_7, %rsi
-	movq	$.CDI_sled_id_7_len, %rdx
+	movq	 $.CDI_sled_id_12, %rsi
+	movq	$.CDI_sled_id_12_len, %rdx
 	call	_CDI_abort
-.CDI_sled_id_7:
-	.string	"benchmark.c:128:0:benchmark.s id=7"
-	.set	.CDI_sled_id_7_len, .-.CDI_sled_id_7
+.CDI_sled_id_12:
+	.string	"benchmark.c:128:0:benchmark.s id=12"
+	.set	.CDI_sled_id_12_len, .-.CDI_sled_id_12
 	.cfi_endproc
 .LFE4:
 	.size	cipher_main, .-cipher_main
@@ -761,8 +689,8 @@ benchmark.s.main:
 	movq	%rsp, %rbp
 	.cfi_def_cfa_register 6
 	.loc 1 133 0
-	call	hanoi_main_2
-_CDI_benchmark.s.hanoi_main_2_TO_benchmark.s.main_1:
+	call	hanoi_main
+_CDI_benchmark.s.hanoi_main_TO_benchmark.s.main_1:
 	.loc 1 134 0
 	call	cipher_main
 _CDI_benchmark.s.cipher_main_TO_benchmark.s.main_1:
@@ -1531,11 +1459,126 @@ _CDI_benchmark.s.cipher_main_TO_benchmark.s.main_1:
 	.string	"keytext"
 	.ident	"GCC: (Ubuntu 4.8.4-2ubuntu1~14.04.3) 4.8.4"
 	.section	.note.GNU-stack,"",@progbits
-SF12:
-	.string	"keytext"
-	.ident	"GCC: (Ubuntu 4.8.4-2ubuntu1~14.04.3) 4.8.4"
-	.section	.note.GNU-stack,"",@progbits
-or/improved_benchmark"
+eb128 0x5
+	.byte	0
+	.uleb128 0x49
+	.uleb128 0x13
+	.byte	0
+	.byte	0
+	.uleb128 0xe
+	.uleb128 0x2e
+	.byte	0
+	.uleb128 0x3f
+	.uleb128 0x19
+	.uleb128 0x3
+	.uleb128 0xe
+	.uleb128 0x3a
+	.uleb128 0xb
+	.uleb128 0x3b
+	.uleb128 0xb
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x11
+	.uleb128 0x1
+	.uleb128 0x12
+	.uleb128 0x7
+	.uleb128 0x40
+	.uleb128 0x18
+	.uleb128 0x2116
+	.uleb128 0x19
+	.byte	0
+	.byte	0
+	.uleb128 0xf
+	.uleb128 0x1
+	.byte	0x1
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x1
+	.uleb128 0x13
+	.byte	0
+	.byte	0
+	.uleb128 0x10
+	.uleb128 0x21
+	.byte	0
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x2f
+	.uleb128 0xb
+	.byte	0
+	.byte	0
+	.uleb128 0x11
+	.uleb128 0x34
+	.byte	0
+	.uleb128 0x3
+	.uleb128 0xe
+	.uleb128 0x3a
+	.uleb128 0xb
+	.uleb128 0x3b
+	.uleb128 0xb
+	.uleb128 0x49
+	.uleb128 0x13
+	.uleb128 0x3f
+	.uleb128 0x19
+	.uleb128 0x2
+	.uleb128 0x18
+	.byte	0
+	.byte	0
+	.byte	0
+	.section	.debug_aranges,"",@progbits
+	.long	0x2c
+	.value	0x2
+	.long	.Ldebug_info0
+	.byte	0x8
+	.byte	0
+	.value	0
+	.value	0
+	.quad	.Ltext0
+	.quad	.Letext0-.Ltext0
+	.quad	0
+	.quad	0
+	.section	.debug_line,"",@progbits
+.Ldebug_line0:
+	.section	.debug_str,"MS",@progbits,1
+.LASF7:
+	.string	"hanoi_main"
+.LASF4:
+	.string	"delta"
+.LASF15:
+	.string	"ciphertext"
+.LASF13:
+	.string	"plaintext"
+.LASF5:
+	.string	"encipher"
+.LASF17:
+	.string	"GNU C 4.8.4 -mtune=generic -march=x86-64 -g -fstack-protector"
+.LASF8:
+	.string	"cipher_main"
+.LASF6:
+	.string	"decipher"
+.LASF10:
+	.string	"count"
+.LASF3:
+	.string	"Loops"
+.LASF9:
+	.string	"cipher_type"
+.LASF20:
+	.string	"main"
+.LASF1:
+	.string	"unsigned int"
+.LASF18:
+	.string	"benchmark.c"
+.LASF2:
+	.string	"disk"
+.LASF16:
+	.string	"newplain"
+.LASF0:
+	.string	"sizetype"
+.LASF14:
+	.string	"cipherref"
+.LASF11:
+	.string	"long int"
+.LASF19:
+	.string	"/vagrant/cdi/cdi_generator/improved_benchmark"
 .LASF12:
 	.string	"keytext"
 	.ident	"GCC: (Ubuntu 4.8.4-2ubuntu1~14.04.3) 4.8.4"

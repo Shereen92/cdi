@@ -131,6 +131,8 @@ cipher_main(void)
 
 int main() {
     hanoi_main();
+    hanoi_main();
+    hanoi_main();
     cipher_main();
 }
 

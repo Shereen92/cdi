@@ -98,20 +98,26 @@ class Function:
             line = line[:-1]
         self.cdi_return_sites.append(line)
 
-    def get_cdi_line_num(self, file_content):   
-        for line in file_content:
+    def get_cdi_line_num(self, file_lines_map):   
+        #print("HEREEEE " + self.asm_filename)
+        #print(self.asm_name)
+        for line in file_lines_map[self.asm_filename]:
             if self.asm_name in line:
-                if ':' in line: 
+                #print "FOUND 1: " + line
+                if ':' in line:
+                    #print "FOUND 2 -> " + str(line) + " with length " + str(len(line)) + " compared to: " + str(self.asm_name) + " with " + str(len(self.asm_name)+1)
                     if len(line) == len(self.asm_name)+1:
-                        return file_content.index(line)
+                        #print "FOUND 3"
                         
-    def get_cdi_end_line_num(self, file_content, functs):
+                        return file_lines_map[self.asm_filename].index(line)
+                        
+    def get_cdi_end_line_num(self, file_lines_map, functs):
         closest = 9999999
-        cur_position = self.get_cdi_line_num(file_content) 
+        cur_position = self.get_cdi_line_num(file_lines_map) 
         for funct in functs:
             if funct == self:
                 continue
-            func_position = funct.get_cdi_line_num(file_content)
+            func_position = funct.get_cdi_line_num(file_lines_map)
             diff = func_position - cur_position
             if diff < closest and diff > 0:
                 closest = diff
