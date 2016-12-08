@@ -111,15 +111,27 @@ def eliminate_extra_return_sites(ret_map):
         #print("SHIT " + f.asm_filename)
         #for line in Global.file_lines_map[f.asm_filename]:
             #print "Line -- [" +line + "]"
+            
+            
+            
+        # BUG ZONE:
+        # Cannot find # Not in list: '\tcmpq\t$_CDI_printf.s.out_2_TO_printf.s.tfp_printf_3, -8(%rsp)'
+        # in Global.file_lines_map["printf.s"]
+            
+        for line in Global.file_lines_map["printf.s"]:
+            print "[" + line + ']'
+        
+            
         for del_line in rets_to_delete:
             ind = Global.file_lines_map[f.asm_filename].index(del_line)
-            
-            for line in Global.file_lines_map[f.asm_filename]:
-                print("COMPARING : ")
-                print("LINE -> " + line)
-                print("DEL LINE -> " + del_line)
-                if line == del_line:
-                    print "MATCH FOUND"
+            print("DEL LINE -> [" + del_line + ']')
+            #for line in Global.file_lines_map[f.asm_filename]:
+            #print("COMPARING : ")
+            #print("LINE -> " + line)
+            #print "f.asm_filename:[" + f.asm_filename + ']'
+        
+            #if line == del_line:
+            #    print "MATCH FOUND"
                     
             Global.file_lines_map[f.asm_filename].pop(ind)
             Global.file_lines_map[f.asm_filename].pop(ind)
