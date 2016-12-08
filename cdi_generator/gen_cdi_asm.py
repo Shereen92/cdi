@@ -13,7 +13,6 @@ dwarf_loc = asm_parsing.DwarfSourceLoc()
 
 def gen_cdi_asm(cfg, asm_file_descrs, options):
     """Writes cdi compliant assembly from cfg and assembly file descriptions"""
-    
     sled_id_faucet = funct_cfg.SledIdFaucet()
     all_functs = list()
     for descr in asm_file_descrs:
@@ -55,41 +54,36 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
             register_file_lines(src_line, asm_src.name)
             src_line = asm_src.readline()
    
-        # Perform cloning experiments (TODO: move to proper place)
-        init_functToCallSites_map(all_functs)
+    # Perform cloning experiments (TODO: move to proper place)
+    init_functToCallSites_map(all_functs)
         
-        clone_function(all_functs[1], all_functs)
-        return_site_elimination_map = distribute_callsites_among_clones(all_functs[1])
-        """
-        for k in return_site_elimination_map:
-            print(k.uniq_label)
-            for r in return_site_elimination_map[k]:
-                print(r)
-            print("---------")
-        """
-        eliminate_extra_return_sites(return_site_elimination_map)    
-        finalize_output_file(asm_src.name, asm_dest, Global.file_lines_map)
+    clone_function(all_functs[1], all_functs)
+    return_site_elimination_map = distribute_callsites_among_clones(all_functs[1])
+    eliminate_extra_return_sites(return_site_elimination_map)    
+    finalize_output_file(asm_src.name, asm_dest, Global.file_lines_map)
  
-        asm_src.close()
-        asm_dest.close()
-        
+    asm_src.close()
+    asm_dest.close()
+
 def debug_map(line, file_name):
 
     print("Adding line: " + str(line) + " with key " + str(file_name))
 
 from copy import deepcopy
 def eliminate_extra_return_sites(ret_map):
-    
     functs = ret_map.keys()
+    
+    """
     for f in functs:
-        return_sites_for_funct = f.cdi_return_sites
-        
         print("-----")
         print("Function " + f.asm_name + " from file " + f.asm_filename)
         print("The returns for this function are ")
         for i in ret_map[f]:
             print(i)
         print("---end---")
+    """
+    for f in functs:
+        return_sites_for_funct = f.cdi_return_sites
         
         # ret_map[x] and returns_sites_for_funct hold different formats of what is essentially the same data.
         # The former holds labels, while the latter holds actual, full call instructions.
@@ -106,7 +100,7 @@ def eliminate_extra_return_sites(ret_map):
         rets_to_delete = list(set(return_sites_for_funct) - set(ret_list))
         #print("RETS to DELETE ")
         #for r in rets_to_delete:
-            #print "[" + r + "]"
+        #    print "[" + r + "]"
         
         #print("SHIT " + f.asm_filename)
         #for line in Global.file_lines_map[f.asm_filename]:
@@ -118,16 +112,17 @@ def eliminate_extra_return_sites(ret_map):
                 #print("COMPARING : ")
                 #print("LINE -> " + line)
                 #print("DEL LINE -> " + del_line)
-                
+                """
                 if('_CDI_printf.s.out_TO_printf.s.tfp_printf_2,' in line):
                     print "FOUND"
                 if line == del_line:
                     print "MATCH FOUND"
-                   
+                """   
             Global.file_lines_map[f.asm_filename].pop(ind)
             Global.file_lines_map[f.asm_filename].pop(ind)
 
 def collect_calls(funct):
+   
     callsite_line = "\tcall\t" + funct.asm_name
     
     indices_map = defaultdict(list)
@@ -141,6 +136,7 @@ def collect_calls(funct):
     return indices_map
             
 def distribute_callsites_among_clones(funct):
+
     """
     funct must be an original function-- not a copy.
     """
@@ -170,12 +166,14 @@ def distribute_callsites_among_clones(funct):
     return funct_to_return_label_map
 
 def finalize_output_file(src_file_name, output_file, code_lines_map):
+
     for line in code_lines_map[src_file_name]:
             output_file.write(line + '\n')
  
 functToCallSitesMap = dict() 
       
 def init_functToCallSites_map(functs):
+
     """
     Initialize the functToCallSitesMap.
     funct objects are keys. They associate with lists of call sites.
@@ -198,6 +196,7 @@ def init_functToCallSites_map(functs):
     return functToCallSitesMap
    
 def extract_funct_alt(funct_lines, funct_name, starting_line_num):
+
     """
     Constructs a cloned function from an array of code lines. 
     """
@@ -265,6 +264,7 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     return new_funct, line_num
          
 def clone_function(funct, functs):
+
     line_num = funct.get_cdi_line_num(Global.file_lines_map)
     copies = []
     clone_num = funct.get_num_clones() + 2
@@ -338,7 +338,8 @@ def clone_function(funct, functs):
     #print()
     return f
     
-def fix_names(copies, funct, labels, clone_num):           
+def fix_names(copies, funct, labels, clone_num): 
+
     copies[0] = copies[0].replace(':', '') #remove :
     copies[0] = copies[0].replace(copies[0], copies[0] + '_' + str(clone_num) + ':') #add clone_num to name of funct
     for s in labels:
@@ -358,6 +359,7 @@ def cdi_asm_name(asm_name):
     return asm_name[:-2] + '.cdi.s'
 
 def write_lines(num_lines, asm_src, asm_dest, dwarf_loc):
+
     """Writes from file obj asm_src to file obj asm_dest num_lines lines"""
     i = 0
     while i < num_lines:
