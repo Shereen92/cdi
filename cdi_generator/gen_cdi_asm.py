@@ -56,14 +56,18 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
    
     # Perform cloning experiments (TODO: move to proper place)
     init_functToCallSites_map(all_functs)
-        
-    clone_function(all_functs[1], all_functs)
-    return_site_elimination_map = distribute_callsites_among_clones(all_functs[1])
-    eliminate_extra_return_sites(return_site_elimination_map)    
+    clone_multiple_times(all_functs[0], all_functs, 1)    
+    
     finalize_output_file(asm_src.name, asm_dest, Global.file_lines_map)
  
     asm_src.close()
     asm_dest.close()
+    
+def clone_multiple_times(funct, functs, num):
+    for n in range(num):
+        clone_function(funct, functs)
+        return_site_elimination_map = distribute_callsites_among_clones(funct)
+        eliminate_extra_return_sites(return_site_elimination_map) 
 
 def debug_map(line, file_name):
 
@@ -112,13 +116,13 @@ def eliminate_extra_return_sites(ret_map):
         # Cannot find # Not in list: '\tcmpq\t$_CDI_printf.s.out_2_TO_printf.s.tfp_printf_3, -8(%rsp)'
         # in Global.file_lines_map["printf.s"]
             
-        for line in Global.file_lines_map["printf.s"]:
-            print "[" + line + ']'
+        #for line in Global.file_lines_map["printf.s"]:
+        #    print "[" + line + ']'
         
             
         for del_line in rets_to_delete:
             ind = Global.file_lines_map[f.asm_filename].index(del_line)
-            print("DEL LINE -> [" + del_line + ']')
+            #print("DEL LINE -> [" + del_line + ']')
             #for line in Global.file_lines_map[f.asm_filename]:
             #print("COMPARING : ")
             #print("LINE -> " + line)
@@ -213,7 +217,7 @@ def init_functToCallSites_map(functs):
                         #print "YES!"
 
     return functToCallSitesMap
-   
+import sys   
 def extract_funct_alt(funct_lines, funct_name, starting_line_num):
 
     """
@@ -243,7 +247,7 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
             asm_line = asm_file.readline()
             line_num += 1
             continue
-
+        #print("Reached here")
         if first_word[:len('.LFE')] == '.LFE':
             break
         else:
@@ -269,8 +273,16 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
         line_num += 1
     else:
         eprint(dwarf_loc.filename() + ':' + ' ' + ':' 
-                + start_line_num + ' error: unterminated function: ',
+                + str(start_line_num) + ' error: unterminated function: ',
                 funct_name)
+        """
+        print("HERE IS LINES ")
+        for line in funct_lines:
+            print line
+        print("SITES: ")
+        for s in sites:
+            print(s)
+        """    
         sys.exit(1)
 
     # new_funct = funct_cfg.Function(funct_name, asm_file.name, 
@@ -303,10 +315,13 @@ def clone_function(funct, functs):
         line_num += 1
        
     copies = fix_names(copies, funct, labels, clone_num) #add _clone_num to other places needed
+    #for line in copies:
+    #    print line
     Global.file_lines_map[funct.asm_filename][end:end] = copies
     
     f,n = extract_funct_alt(copies, funct.asm_name + "_" + str(clone_num), end)
     f.asm_filename = funct.asm_filename
+    
     f.cdi_return_sites.extend(return_lines)
     funct.clones.append(f)
 

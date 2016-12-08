@@ -113,15 +113,15 @@ class Function:
                         
     def get_cdi_end_line_num(self, file_lines_map, functs):
         closest = 9999999
-        cur_position = self.get_cdi_line_num(file_lines_map) 
+        cur_position = self.get_cdi_line_num(file_lines_map)
         for funct in functs:
-            if funct == self:
+            if funct == self or funct.asm_filename != self.asm_filename:
                 continue
             func_position = funct.get_cdi_line_num(file_lines_map)
             diff = func_position - cur_position
             if diff < closest and diff > 0:
                 closest = diff
-        end = cur_position + closest 
+        end = cur_position + closest
         return end
 
 class FunctionType:
