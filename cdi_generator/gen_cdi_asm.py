@@ -56,12 +56,37 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
    
     # Perform cloning experiments (TODO: move to proper place)
     init_functToCallSites_map(all_functs)
-    clone_multiple_times(all_functs[0], all_functs, 1)    
+    
+    conservative_cloning_heuristic(all_functs)
     
     finalize_output_file(Global.file_lines_map)
  
     asm_src.close()
     asm_dest.close()
+    
+def conservative_cloning_heuristic(all_functs):
+    # The conservative cloning heuristic only attempts to clone a function once, and only if
+    # there exists more than one callsite for the function.
+    for funct in all_functs:
+        callsite_map = collect_calls(funct)
+        num_callsites = 0
+        for key in callsite_map.keys():
+            num_callsites += len(callsite_map[key])
+        
+        if num_callsites > 1:
+            clone_multiple_times(funct, all_functs, 1)
+    
+def aggressive_default_cloning_heuristic(all_functs):
+    # The default heuristic is to produce a clone of a function for each callsite of that function - 1.
+    # Here, we calculate the number of callsites for each function, and produce that many (-1) clones.
+    for funct in all_functs:
+        callsite_map = collect_calls(funct)
+        num_callsites = 0
+        for key in callsite_map.keys():
+            num_callsites += len(callsite_map[key])
+        
+        if num_callsites > 1:
+            clone_multiple_times(funct, all_functs, num_callsites - 1)
     
 def clone_multiple_times(funct, functs, num):
     print "cloning " + funct.uniq_label
@@ -122,6 +147,7 @@ def eliminate_extra_return_sites(ret_map):
         
             
         for del_line in rets_to_delete:
+            
             ind = Global.file_lines_map[f.asm_filename].index(del_line)
             #print("DEL LINE -> [" + del_line + ']')
             #for line in Global.file_lines_map[f.asm_filename]:
@@ -227,6 +253,7 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     """
     Constructs a cloned function from an array of code lines. 
     """
+    print "BEGIN extract_funct_alt"
     start_line_num = 0
     call_list = ["call","callf", "callq"]
     returns = ["ret", "retf", "iret", "retq", "iretq"]
@@ -241,6 +268,7 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     direct_call_sites = []
     empty_ret_dict = dict()
     line_num = starting_line_num
+    
     
     for asm_line in funct_lines:
         asm_parsing.update_dwarf_loc(asm_line, dwarf_loc)
@@ -290,39 +318,58 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
 
     # new_funct = funct_cfg.Function(funct_name, asm_file.name, 
             #dwarf_loc.filename(), sites)
+    src_filename = dwarf_loc.filename()
+    print "SRC FILENAME IN ALT: " + src_filename
     new_funct = funct_cfg.Function(funct_name, ' ', 
-            dwarf_loc.filename(), sites, starting_line_num)
+            src_filename, sites, starting_line_num)
     new_funct.direct_call_sites = direct_call_sites
     new_funct.ret_dict = empty_ret_dict
     # does not fill in all attributes (asm_filename) of funct obj
     return new_funct, line_num
          
 def clone_function(funct, functs):
+    print "CLONING function : [" + funct.asm_name + "]"
     line_num = funct.get_cdi_line_num(Global.file_lines_map)
     copies = []
     clone_num = funct.get_num_clones() + 2
     end = funct.get_cdi_end_line_num(Global.file_lines_map, functs)
     start = line_num
+    
+    print "START: " + str(start)
+    print "END: " + str(end)
+    
     labels = []
     return_lines = []
     for line in Global.file_lines_map[funct.asm_filename][start:]:       
         if(line_num < end):
+            #print "considering line: [" + line + "]"
             if(line.startswith('.L') or line.startswith('.CDI')): #gather labels
                 labels.append(line.replace(':', ''))               
                 #add _clone_num to funct label
+            #print "before: [" + line + "]"
             altered_line = line.replace(funct.uniq_label, funct.uniq_label + "_" + str(clone_num))
+            #print "after: [" + altered_line + "]"
             if("\tcmpq\t$_CDI_" in altered_line):
                 return_lines.append(altered_line)
-            if(line.startswith('\t.file')):    
+            if(".file" in altered_line):
+                line_num += 1            
                 continue
+            #print "Accepting line: [" + altered_line + "]"
             copies.append(altered_line)
-        line_num += 1
-       
+            line_num += 1
+    
+    print "LINES ADDED1: " + str(len(copies))
     copies = fix_names(copies, funct, labels, clone_num) #add _clone_num to other places needed
     #for line in copies:
     #    print line
+    print "LINES ADDED2: " + str(len(copies))
     Global.file_lines_map[funct.asm_filename][end:end] = copies
-
+    
+    print "LINES ADDED3: " + str(len(copies))
+    for c_line in copies:
+        print "[" + c_line + "]"
+    print "END CLONE LINES"
+    
     f,n = extract_funct_alt(copies, funct.asm_name + "_" + str(clone_num), end)
     f.asm_filename = funct.asm_filename
     
@@ -377,7 +424,7 @@ def clone_function(funct, functs):
     return f
     
 def fix_names(copies, funct, labels, clone_num): 
-
+    #print "fixing names for funct: [" + funct.asm_name + "] clone num: " + str(clone_num) 
     copies[0] = copies[0].replace(':', '') #remove :
     copies[0] = copies[0].replace(copies[0], copies[0] + '_' + str(clone_num) + ':') #add clone_num to name of funct
     for s in labels:

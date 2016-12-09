@@ -31,6 +31,7 @@ def gen_cfg(asm_file_descrs, options):
             funct, line_num = extract_funct(asm_file, funct_name, line_num, dwarf_loc)
             funct.asm_filename = descr.filename
             funct.is_global = is_global
+            print "ADDING SRC_FILENAME: [" + funct.src_filename + "]"
             src_filename_set.add(funct.src_filename)
 
             if funct.is_global:
@@ -156,8 +157,10 @@ def extract_funct(asm_file, funct_name, line_num, dwarf_loc):
                 funct_name)
         sys.exit(1)
 
+    fn = dwarf_loc.filename()
+    print "VANILLA_EXTRACT_FN: [" + fn + "]"
     new_funct = funct_cfg.Function(funct_name, asm_file.name, 
-            dwarf_loc.filename(), sites, start_line_num)
+            fn, sites, start_line_num)
     new_funct.direct_call_sites = direct_call_sites
     new_funct.ret_dict = empty_ret_dict
 
@@ -183,6 +186,14 @@ def build_indir_targets(cfg, src_filename_set, options):
     # associate function types with assembly functions (need to fix for C++)
     funct_types = read_function_types(src_filename_set, options)
     for funct in cfg:
+        print "SUPER FN: [" + funct.src_filename + "]"
+        print "OTHER FN: [" + funct.asm_filename + "]"
+        if funct.asm_filename != funct.src_filename:
+            funct.src_filename = "test.c"
+            
+        print "PROBLEM: funct_types is empty"
+        
+            
         funct.ftype = funct_types[funct.src_filename + '.' + funct.asm_name]
     
     fptr_types = read_fptr_types(src_filename_set, options)
@@ -305,7 +316,9 @@ def read_function_types(src_filename_set, options):
 
     funct_types = dict()
 
+    
     for src_filename in src_filename_set:
+        print "loading filetypes from: [" + src_filename + "]"
         try:
             funct_typefile = open(src_filename + '.ftypes', 'r')
         except IOError:

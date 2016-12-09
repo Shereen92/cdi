@@ -21,3 +21,6 @@ int main(){
 	printf("%d \n", (1<<16) -1 );
 	bar(n4);
 }
+
+// bar has two callsites
+// foo has three callsites
