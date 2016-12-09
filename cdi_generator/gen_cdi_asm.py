@@ -57,7 +57,7 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
     # Perform cloning experiments (TODO: move to proper place)
     init_functToCallSites_map(all_functs)
     
-    conservative_cloning_heuristic(all_functs)
+    #conservative_cloning_heuristic(all_functs)
     
     finalize_output_file(Global.file_lines_map)
  
