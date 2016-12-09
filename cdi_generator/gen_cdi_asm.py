@@ -19,7 +19,7 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         asm_parsing.DwarfSourceLoc.wipe_filename_mapping()
         dwarf_loc = asm_parsing.DwarfSourceLoc()
         asm_src = open(descr.filename, 'r')
-        asm_dest = open(cdi_asm_name(descr.filename), 'r+')
+        asm_dest = open(cdi_asm_name(descr.filename), 'w')
         descr_functs = \
             [cfg.funct(descr.filename + '.' + n) for n in descr.funct_names]
         functs = sorted(descr_functs, key=operator.attrgetter('asm_line_num'))
@@ -307,12 +307,14 @@ def clone_function(funct, functs):
     return_lines = []
     for line in Global.file_lines_map[funct.asm_filename][start:]:       
         if(line_num < end):
-            if(line.startswith('.L')): #gather labels
+            if(line.startswith('.L') or line.startswith('.CDI')): #gather labels
                 labels.append(line.replace(':', ''))               
                 #add _clone_num to funct label
             altered_line = line.replace(funct.uniq_label, funct.uniq_label + "_" + str(clone_num))
             if("\tcmpq\t$_CDI_" in altered_line):
                 return_lines.append(altered_line)
+            if(line.startswith('\t.file')):    
+                continue
             copies.append(altered_line)
         line_num += 1
        
