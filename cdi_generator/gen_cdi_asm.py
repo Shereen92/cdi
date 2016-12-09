@@ -57,7 +57,7 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
     # Perform cloning experiments (TODO: move to proper place)
     init_functToCallSites_map(all_functs)
     
-    #conservative_cloning_heuristic(all_functs)
+    conservative_cloning_heuristic(all_functs)
     
     finalize_output_file(Global.file_lines_map)
  
@@ -89,15 +89,13 @@ def aggressive_default_cloning_heuristic(all_functs):
             clone_multiple_times(funct, all_functs, num_callsites - 1)
     
 def clone_multiple_times(funct, functs, num):
-    print "cloning " + funct.uniq_label
     for n in range(num):
         clone_function(funct, functs)
         return_site_elimination_map = distribute_callsites_among_clones(funct)
         eliminate_extra_return_sites(return_site_elimination_map) 
 
 def debug_map(line, file_name):
-
-    print("Adding line: " + str(line) + " with key " + str(file_name))
+    pass
 
 from copy import deepcopy
 def eliminate_extra_return_sites(ret_map):
