@@ -345,7 +345,7 @@ def clone_function(funct, functs):
                 labels.append(line.replace(':', ''))               
                 #add _clone_num to funct label
             #print "before: [" + line + "]"
-            altered_line = line.replace(funct.uniq_label, funct.uniq_label + "_" + str(clone_num))
+            altered_line = line.replace(funct.uniq_label, funct.uniq_label + "_clone" + str(clone_num))
             #print "after: [" + altered_line + "]"
             if("\tcmpq\t$_CDI_" in altered_line):
                 return_lines.append(altered_line)
@@ -368,7 +368,7 @@ def clone_function(funct, functs):
         print "[" + c_line + "]"
     print "END CLONE LINES"
     
-    f,n = extract_funct_alt(copies, funct.asm_name + "_" + str(clone_num), end)
+    f,n = extract_funct_alt(copies, funct.asm_name + "_clone" + str(clone_num), end)
     f.asm_filename = funct.asm_filename
     
     f.cdi_return_sites.extend(return_lines)
@@ -424,16 +424,16 @@ def clone_function(funct, functs):
 def fix_names(copies, funct, labels, clone_num): 
     #print "fixing names for funct: [" + funct.asm_name + "] clone num: " + str(clone_num) 
     copies[0] = copies[0].replace(':', '') #remove :
-    copies[0] = copies[0].replace(copies[0], copies[0] + '_' + str(clone_num) + ':') #add clone_num to name of funct
+    copies[0] = copies[0].replace(copies[0], copies[0] + '_clone' + str(clone_num) + ':') #add clone_num to name of funct
     for s in labels:
         for line in copies:
             ind = copies.index(line)
             if(s in line or line.startswith(s)):
                 #get index of label and replace it with _clone_num
-                line = line.replace(s, s + "_" + str(clone_num))            
+                line = line.replace(s, s + "_clone" + str(clone_num))            
                 copies[ind] = line  
             if('.size' in line):
-                line = line.replace(line, '\t.size\t' + funct.asm_name + '_' +str(clone_num)+ ',\t.-' + funct.asm_name+ '_' + str(clone_num))
+                line = line.replace(line, '\t.size\t' + funct.asm_name + '_clone' +str(clone_num)+ ',\t.-' + funct.asm_name+ '_clone' + str(clone_num))
                 copies[ind] = line 
     return copies
     
