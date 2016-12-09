@@ -58,12 +58,13 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
     init_functToCallSites_map(all_functs)
     clone_multiple_times(all_functs[0], all_functs, 1)    
     
-    finalize_output_file(asm_src.name, asm_dest, Global.file_lines_map)
+    finalize_output_file(Global.file_lines_map)
  
     asm_src.close()
     asm_dest.close()
     
 def clone_multiple_times(funct, functs, num):
+    print "cloning " + funct.uniq_label
     for n in range(num):
         clone_function(funct, functs)
         return_site_elimination_map = distribute_callsites_among_clones(funct)
@@ -188,11 +189,15 @@ def distribute_callsites_among_clones(funct):
             funct_to_return_label_map[funct_to_assign_callsite_to].append(Global.file_lines_map[key][current_call_site_line_number+1])
     return funct_to_return_label_map
 
-def finalize_output_file(src_file_name, output_file, code_lines_map):
-
-    for line in code_lines_map[src_file_name]:
-            output_file.write(line + '\n')
- 
+def finalize_output_file(code_lines_map):
+    
+    for key in code_lines_map.keys():
+        name = key.replace('.s', '.cdi.s')
+        output_file = open(name, 'w')
+        for line in code_lines_map[key]:
+                output_file.write(line + '\n')
+        output_file.close()
+    
 functToCallSitesMap = dict() 
       
 def init_functToCallSites_map(functs):
@@ -219,7 +224,6 @@ def init_functToCallSites_map(functs):
     return functToCallSitesMap
 import sys   
 def extract_funct_alt(funct_lines, funct_name, starting_line_num):
-
     """
     Constructs a cloned function from an array of code lines. 
     """
@@ -247,7 +251,6 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
             asm_line = asm_file.readline()
             line_num += 1
             continue
-        #print("Reached here")
         if first_word[:len('.LFE')] == '.LFE':
             break
         else:
@@ -295,7 +298,6 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     return new_funct, line_num
          
 def clone_function(funct, functs):
-
     line_num = funct.get_cdi_line_num(Global.file_lines_map)
     copies = []
     clone_num = funct.get_num_clones() + 2
@@ -318,7 +320,7 @@ def clone_function(funct, functs):
     #for line in copies:
     #    print line
     Global.file_lines_map[funct.asm_filename][end:end] = copies
-    
+
     f,n = extract_funct_alt(copies, funct.asm_name + "_" + str(clone_num), end)
     f.asm_filename = funct.asm_filename
     
