@@ -86,7 +86,7 @@ def aggressive_default_cloning_heuristic(all_functs):
             clone_multiple_times(funct, all_functs, num_callsites - 1)
     
 def clone_multiple_times(funct, functs, num):
-    print "CLONING " + funct.asm_name + " several times: " + str(num)
+    #print "CLONING " + funct.asm_name + " several times: " + str(num)
     for n in range(num):
         clone_function(funct, functs)
         return_site_elimination_map = distribute_callsites_among_clones(funct)
@@ -113,9 +113,6 @@ def eliminate_extra_return_sites(ret_map):
     """
     for f in functs:
         return_sites_for_funct = f.cdi_return_sites
-        print "SUPR RET LIST: "
-        for thing in return_sites_for_funct:
-            print "[" + thing + "]"
         
         # ret_map[x] and returns_sites_for_funct hold different formats of what is essentially the same data.
         # The former holds labels, while the latter holds actual, full call instructions.
@@ -173,10 +170,8 @@ def eliminate_extra_return_sites(ret_map):
             Global.file_lines_map[f.asm_filename].pop(ind)
             Global.file_lines_map[f.asm_filename].pop(ind)
             f.cdi_return_sites.remove(del_line)
-            print "BRUTAL MURDER: [" + del_line + "]"
 
 def collect_calls(funct):
-    print "[COLLECT CALLS]"
     callsite_line = "\tcall\t" + funct.asm_name
     
     indices_map = defaultdict(list)
@@ -185,7 +180,7 @@ def collect_calls(funct):
         for line in Global.file_lines_map[key]:
             if callsite_line == line:
                 indices_map[key].append(line_no)    
-                print("Adding [" + str(line) + "] at index " + str(line_no))
+                #print("Adding [" + str(line) + "] at index " + str(line_no))
             line_no += 1
             
     return indices_map
@@ -206,13 +201,13 @@ def distribute_callsites_among_clones(funct):
 
     # Perform call sled rewrite
     call_sites_map = collect_calls(funct)
-    
+    """
     print "Distribute Callsites for funct: " + funct.asm_name
     for key in call_sites_map:
         for site in call_sites_map[key]:
             print site
     print "SUPER END"
-    
+    """
     for key in call_sites_map.keys():
         for i in range(len(call_sites_map[key])):
             funct_num_to_assign_callsite_to = i % num_functs

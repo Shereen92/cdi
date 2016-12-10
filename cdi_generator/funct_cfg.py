@@ -93,13 +93,13 @@ class Function:
         return len(self.clones)
 
     def register_return_site(self, line):
-        print "REGISTERRETSITE: " + line
         if line[-1] == '\n':
             line = line[:-1]
         if line not in self.cdi_return_sites:
             self.cdi_return_sites.append(line)
-        else:
-            print "[ERROR] Attempt to register already-registered return site line."
+        #else:
+            #print "[ERROR] Attempt to register already-registered return site line."
+            
             
     def insert_return_site(self, line, file_lines_map, line_num):
         """
@@ -112,7 +112,6 @@ class Function:
             if ind > index_of_furthest_cmp:
                 index_of_furthest_cmp = ind
                 
-        print "Final ret site of func " + self.asm_name + " is at line " + str(index_of_furthest_cmp)
         
         #_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1:
         #   cmpq	$_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1, -8(%rsp)
