@@ -328,7 +328,7 @@ def clone_function(funct, functs):
     for line in Global.file_lines_map[funct.asm_filename][start:]:       
         if(line_num < end):
             #print "considering line: [" + line + "]"
-            if(line.startswith('.L')): #gather labels
+            if(line.startswith('.L') or line.startswith('.CDI')): #gather labels
                 labels.append(line.replace(':', ''))               
                 #add _clone_num to funct label
             #print "before: [" + line + "]"
