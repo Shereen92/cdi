@@ -53,9 +53,6 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
         while src_line:
             register_file_lines(src_line, asm_src.name)
             src_line = asm_src.readline()
-   
-    # Perform cloning experiments (TODO: move to proper place)
-    init_functToCallSites_map(all_functs)
     
     conservative_cloning_heuristic(all_functs)
     
@@ -89,16 +86,20 @@ def aggressive_default_cloning_heuristic(all_functs):
             clone_multiple_times(funct, all_functs, num_callsites - 1)
     
 def clone_multiple_times(funct, functs, num):
+    print "CLONING " + funct.asm_name + " several times: " + str(num)
     for n in range(num):
         clone_function(funct, functs)
         return_site_elimination_map = distribute_callsites_among_clones(funct)
-        eliminate_extra_return_sites(return_site_elimination_map) 
+        eliminate_extra_return_sites(return_site_elimination_map)
 
 def debug_map(line, file_name):
     pass
 
 from copy import deepcopy
 def eliminate_extra_return_sites(ret_map):
+    """
+    ret_map is the list of rets that should be kept.
+    """
     functs = ret_map.keys()
     
     """
@@ -112,6 +113,9 @@ def eliminate_extra_return_sites(ret_map):
     """
     for f in functs:
         return_sites_for_funct = f.cdi_return_sites
+        print "SUPR RET LIST: "
+        for thing in return_sites_for_funct:
+            print "[" + thing + "]"
         
         # ret_map[x] and returns_sites_for_funct hold different formats of what is essentially the same data.
         # The former holds labels, while the latter holds actual, full call instructions.
@@ -168,9 +172,11 @@ def eliminate_extra_return_sites(ret_map):
                 """   
             Global.file_lines_map[f.asm_filename].pop(ind)
             Global.file_lines_map[f.asm_filename].pop(ind)
+            f.cdi_return_sites.remove(del_line)
+            print "BRUTAL MURDER: [" + del_line + "]"
 
 def collect_calls(funct):
-   
+    print "[COLLECT CALLS]"
     callsite_line = "\tcall\t" + funct.asm_name
     
     indices_map = defaultdict(list)
@@ -179,17 +185,17 @@ def collect_calls(funct):
         for line in Global.file_lines_map[key]:
             if callsite_line == line:
                 indices_map[key].append(line_no)    
-                #print("Adding " + str(line) + " at index " + str(line_no))
+                print("Adding [" + str(line) + "] at index " + str(line_no))
             line_no += 1
+            
     return indices_map
             
 def distribute_callsites_among_clones(funct):
-
     """
     funct must be an original function-- not a copy.
     """
     num_functs = len(funct.clones) + 1
-    functs = [funct]    
+    functs = [funct]
     for clone in funct.clones:
         functs.append(clone)
     
@@ -201,6 +207,12 @@ def distribute_callsites_among_clones(funct):
     # Perform call sled rewrite
     call_sites_map = collect_calls(funct)
     
+    print "Distribute Callsites for funct: " + funct.asm_name
+    for key in call_sites_map:
+        for site in call_sites_map[key]:
+            print site
+    print "SUPER END"
+    
     for key in call_sites_map.keys():
         for i in range(len(call_sites_map[key])):
             funct_num_to_assign_callsite_to = i % num_functs
@@ -211,6 +223,8 @@ def distribute_callsites_among_clones(funct):
             Global.file_lines_map[key][current_call_site_line_number] = "\tcall\t" + funct_to_assign_callsite_to.asm_name       
             Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name) 
             funct_to_return_label_map[funct_to_assign_callsite_to].append(Global.file_lines_map[key][current_call_site_line_number+1])
+    
+    # Line we care about keeping doesn't make it into this.
     return funct_to_return_label_map
 
 def finalize_output_file(code_lines_map):
@@ -221,37 +235,13 @@ def finalize_output_file(code_lines_map):
         for line in code_lines_map[key]:
                 output_file.write(line + '\n')
         output_file.close()
-    
-functToCallSitesMap = dict() 
-      
-def init_functToCallSites_map(functs):
-
-    """
-    Initialize the functToCallSitesMap.
-    funct objects are keys. They associate with lists of call sites.
-    """
-    #map = dict()
-    for funct_org in functs:
-        functToCallSitesMap[funct_org] = set()
-        #print "Finding References to funct: " + funct_org.uniq_label
-        for other_funct in functs:
-            #print "Investigating funct: " + other_funct.uniq_label
-            for site in other_funct.sites:
-                if site.group == funct_cfg.Site.CALL_SITE:
-                    #print "checking site:" + site.targets[0].uniq_label
-                    if(site.targets[0] == funct_org):
-                        functToCallSitesMap[funct_org].add(other_funct.uniq_label)
-                        
-                        #print("ADDING " + str(other_funct.uniq_label) + " To " + str(funct_org.uniq_label))
-                        #print "YES!"
-
-    return functToCallSitesMap
+          
 import sys   
 def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     """
     Constructs a cloned function from an array of code lines. 
     """
-    print "BEGIN extract_funct_alt"
+    #print "BEGIN extract_funct_alt"
     start_line_num = 0
     call_list = ["call","callf", "callq"]
     returns = ["ret", "retf", "iret", "retq", "iretq"]
@@ -317,7 +307,7 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     # new_funct = funct_cfg.Function(funct_name, asm_file.name, 
             #dwarf_loc.filename(), sites)
     src_filename = dwarf_loc.filename()
-    print "SRC FILENAME IN ALT: " + src_filename
+    #print "SRC FILENAME IN ALT: " + src_filename
     new_funct = funct_cfg.Function(funct_name, ' ', 
             src_filename, sites, starting_line_num)
     new_funct.direct_call_sites = direct_call_sites
@@ -326,15 +316,15 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     return new_funct, line_num
          
 def clone_function(funct, functs):
-    print "CLONING function : [" + funct.asm_name + "]"
+    #print "CLONING function : [" + funct.asm_name + "]"
     line_num = funct.get_cdi_line_num(Global.file_lines_map)
     copies = []
     clone_num = funct.get_num_clones() + 2
     end = funct.get_cdi_end_line_num(Global.file_lines_map, functs)
     start = line_num
     
-    print "START: " + str(start)
-    print "END: " + str(end)
+    #print "START: " + str(start)
+    #print "END: " + str(end)
     
     labels = []
     return_lines = []
@@ -352,27 +342,45 @@ def clone_function(funct, functs):
             if(".file" in altered_line):
                 line_num += 1            
                 continue
+            
+            # Special: If we hit a call...
+            if "\tcall\t" in altered_line:
+                #Add return site to function being called.
+                special_ret_site = Global.file_lines_map[funct.asm_filename][line_num]
+                print "SPEC RET SITE SPLIT: "
+                ssplit = special_ret_site.split('\t')
+                #for thingy in ssplit:
+                #    print thingy
+                name_of_funct_being_called = special_ret_site.split('\t')[2]
+                funct_being_called = get_funct_via_name(name_of_funct_being_called, functs)
+                if funct_being_called is not None:
+                   funct_being_called.insert_return_site(special_ret_site, Global.file_lines_map)
+            
             #print "Accepting line: [" + altered_line + "]"
             copies.append(altered_line)
             line_num += 1
     
-    print "LINES ADDED1: " + str(len(copies))
+    #print "LINES ADDED1: " + str(len(copies))
     copies = fix_names(copies, funct, labels, clone_num) #add _clone_num to other places needed
     #for line in copies:
     #    print line
-    print "LINES ADDED2: " + str(len(copies))
+    #print "LINES ADDED2: " + str(len(copies))
     Global.file_lines_map[funct.asm_filename][end:end] = copies
     
-    print "LINES ADDED3: " + str(len(copies))
-    for c_line in copies:
-        print "[" + c_line + "]"
-    print "END CLONE LINES"
+    #print "LINES ADDED3: " + str(len(copies))
+    #for c_line in copies:
+    #    print "[" + c_line + "]"
+    #print "END CLONE LINES"
     
     f,n = extract_funct_alt(copies, funct.asm_name + "_clone" + str(clone_num), end)
     f.asm_filename = funct.asm_filename
     
-    f.cdi_return_sites.extend(return_lines)
-    funct.clones.append(f)
+    for ret_line in return_lines:
+        if ret_line not in f.cdi_return_sites:
+            f.cdi_return_sites.append(ret_line)
+    
+    if f not in funct.clones:
+        funct.clones.append(f)
 
     #print(Global.file_lines.index("\tcmpq\t$_CDI_" + funct.uniq_label + "_" + str(clone_num) + "_TO_benchmark.s.main_1, -8(%rsp)))
     # get return labels, add them to f.cdi_return_sites
@@ -420,6 +428,13 @@ def clone_function(funct, functs):
     """
     #print()
     return f
+    
+def get_funct_via_name(funct_name, all_functs):
+    for funct in all_functs:
+        if funct.asm_name == funct_name:
+            return funct
+            
+    return None
     
 def fix_names(copies, funct, labels, clone_num): 
     #print "fixing names for funct: [" + funct.asm_name + "] clone num: " + str(clone_num) 

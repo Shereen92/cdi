@@ -81,14 +81,13 @@ class Function:
         #self.asm_cdi_end_line_num = -1
         self.uniq_label = asm_filename + '.' + asm_name
         self.src_filename = src_filename
-        self.body = []
         self.clones = []
-        self.cdi_return_sites = []
+        self.cdi_return_sites = [] # 
         
         # unitialized / improperly set until gen_cfg finishes
         self.ftype = None # function type
         self.ret_dict = dict()
-        self.is_global = True
+        self.is_global = True 
     
     def get_num_clones(self):
         return len(self.clones)
@@ -96,8 +95,29 @@ class Function:
     def register_return_site(self, line):
         if line[-1] == '\n':
             line = line[:-1]
-        self.cdi_return_sites.append(line)
-
+        if line not in self.cdi_return_sites:
+            self.cdi_return_sites.append(line)
+        else:
+            print "[ERROR] Attempt to register already-registered return site line."
+            
+    def insert_return_site(self, line, file_lines_map):
+        index_of_furthest_cmp = -1
+        for ret_cmp_inst in self.cdi_return_sites:
+            ind = file_lines_map[self.asm_filename].index(ret_cmp_inst)
+            if ind > index_of_furthest_cmp:
+                index_of_furthest_cmp = ind
+                
+        print "Final ret site of func " + self.asm_name + " is at line " + str(index_of_furthest_cmp)
+        
+        #_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1:
+        #   cmpq	$_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1, -8(%rsp)
+        #   je	_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1
+        compare_inst = "\tcmpq\t$" + line[:-1] + ", -8(%rsp)"
+        jump_inst = "\tje\t" + line[:-1]
+        new_ret_site = [compare_inst, jump_inst]
+        file_lines_map[index_of_furthest_cmp+2:index_of_furthest_cmp+2] = new_ret_site
+        register_return_site(line)
+            
     def get_cdi_line_num(self, file_lines_map):   
         #print("HEREEEE " + self.asm_filename)
         #print(self.asm_name)
