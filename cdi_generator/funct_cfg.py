@@ -115,8 +115,8 @@ class Function:
         compare_inst = "\tcmpq\t$" + line[:-1] + ", -8(%rsp)"
         jump_inst = "\tje\t" + line[:-1]
         new_ret_site = [compare_inst, jump_inst]
-        file_lines_map[index_of_furthest_cmp+2:index_of_furthest_cmp+2] = new_ret_site
-        register_return_site(line)
+        file_lines_map[self.asm_filename][index_of_furthest_cmp+2:index_of_furthest_cmp+2] = new_ret_site
+        self.register_return_site(line)
             
     def get_cdi_line_num(self, file_lines_map):   
         #print("HEREEEE " + self.asm_filename)

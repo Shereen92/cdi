@@ -347,6 +347,8 @@ def clone_function(funct, functs):
             if "\tcall\t" in altered_line:
                 #Add return site to function being called.
                 special_ret_site = Global.file_lines_map[funct.asm_filename][line_num]
+                return_label = Global.file_lines_map[funct.asm_filename][line_num+1]
+                return_label = return_label.replace(funct.uniq_label, funct.uniq_label + "_clone" + str(clone_num))
                 print "SPEC RET SITE SPLIT: "
                 ssplit = special_ret_site.split('\t')
                 #for thingy in ssplit:
@@ -354,7 +356,7 @@ def clone_function(funct, functs):
                 name_of_funct_being_called = special_ret_site.split('\t')[2]
                 funct_being_called = get_funct_via_name(name_of_funct_being_called, functs)
                 if funct_being_called is not None:
-                   funct_being_called.insert_return_site(special_ret_site, Global.file_lines_map)
+                   funct_being_called.insert_return_site(return_label, Global.file_lines_map)
             
             #print "Accepting line: [" + altered_line + "]"
             copies.append(altered_line)
