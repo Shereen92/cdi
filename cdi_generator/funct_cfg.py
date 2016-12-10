@@ -93,6 +93,7 @@ class Function:
         return len(self.clones)
 
     def register_return_site(self, line):
+        print "REGISTERRETSITE: " + line
         if line[-1] == '\n':
             line = line[:-1]
         if line not in self.cdi_return_sites:
@@ -100,7 +101,11 @@ class Function:
         else:
             print "[ERROR] Attempt to register already-registered return site line."
             
-    def insert_return_site(self, line, file_lines_map):
+    def insert_return_site(self, line, file_lines_map, line_num):
+        """
+        This function is responsible for returning +2 if the 2 inserted lines are inserted before line_num,
+        and +0 if inserted after. Don't...don't ask.
+        """
         index_of_furthest_cmp = -1
         for ret_cmp_inst in self.cdi_return_sites:
             ind = file_lines_map[self.asm_filename].index(ret_cmp_inst)
@@ -116,7 +121,11 @@ class Function:
         jump_inst = "\tje\t" + line[:-1]
         new_ret_site = [compare_inst, jump_inst]
         file_lines_map[self.asm_filename][index_of_furthest_cmp+2:index_of_furthest_cmp+2] = new_ret_site
-        self.register_return_site(line)
+        self.register_return_site(compare_inst)
+        
+        if index_of_furthest_cmp+2 <= line_num:
+            return 2
+        return 0
             
     def get_cdi_line_num(self, file_lines_map):   
         #print("HEREEEE " + self.asm_filename)

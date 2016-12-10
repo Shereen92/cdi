@@ -29,6 +29,7 @@ def gen_cfg(asm_file_descrs, options):
         
         while funct_name:
             funct, line_num = extract_funct(asm_file, funct_name, line_num, dwarf_loc)
+            print "ASM FILE!!!! [" + asm_file.name + "]"
             funct.asm_filename = descr.filename
             funct.is_global = is_global
             src_filename_set.add(funct.src_filename)
@@ -49,6 +50,7 @@ def gen_cfg(asm_file_descrs, options):
         descr_functs = \
             [cfg.funct(descr.filename + '.' + n) for n in descr.funct_names]
         for funct in descr_functs:
+            print "FUNCT FUCKUP: [" + funct.asm_filename + "]"
             for dir_call_site in funct.direct_call_sites:
                 target_name = dir_call_site.targets[0]
                 if target_name in descr.funct_names:
@@ -183,10 +185,13 @@ def build_indir_targets(cfg, src_filename_set, options):
     
     # associate function types with assembly functions (need to fix for C++)
     funct_types = read_function_types(src_filename_set, options)
-    for funct in cfg:
-        if funct.asm_filename != funct.src_filename:
-            funct.src_filename = "test.c"        
-            
+    for funct in cfg:      
+        print "FUNCT FUCKUP1: [" + funct.asm_filename + "] src: [" + funct.src_filename + "]" 
+        
+        print "WHAT'S IN ARRAY??"
+        for key in funct_types.keys():
+            print "[" + key + "]"
+                
         funct.ftype = funct_types[funct.src_filename + '.' + funct.asm_name]
     
     fptr_types = read_fptr_types(src_filename_set, options)
@@ -311,6 +316,7 @@ def read_function_types(src_filename_set, options):
 
     
     for src_filename in src_filename_set:
+        print "FUCKOFF: [" + src_filename + "]" 
         try:
             funct_typefile = open(src_filename + '.ftypes', 'r')
         except IOError:
@@ -328,6 +334,7 @@ def read_function_types(src_filename_set, options):
             funct_type.src_name = loc_list[3]
             key = funct_type.src_filename + '.' + funct_type.src_name
             funct_types[key] = funct_type
+            print "inserted at [" + key + "]"
         funct_typefile.close()
 
     if options['--verbose']:
