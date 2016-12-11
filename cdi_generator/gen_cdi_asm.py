@@ -264,6 +264,7 @@ def get_funct_via_line(line_num, all_functs, file):
     return closest_funct
 
 def parse_line(line):
+    print "PLINE: [" + line + "]"
     if(line.startswith('_CDI')):
         str = line.split('_TO_')
         source = str[0].replace("CDI", "").split('.')
@@ -389,7 +390,7 @@ def clone_function(funct, functs):
     
     for line in Global.file_lines_map[funct.asm_filename][start:]:       
         if(line_num < end):
-            #print "considering line: [" + line + "]"
+            print "considering line: [" + line + "]"
             if(line.startswith('.L') or line.startswith('.CDI')): #gather labels
                 labels.append(line.replace(':', ''))               
                 #add _clone_num to funct label
@@ -409,7 +410,11 @@ def clone_function(funct, functs):
             if "\tcall\t" in altered_line:
                 #Add return site to function being called.
                 special_ret_site = Global.file_lines_map[funct.asm_filename][line_num]
-                return_label = Global.file_lines_map[funct.asm_filename][line_num+1]
+                
+                if ".globl" not in Global.file_lines_map[funct.asm_filename][line_num+1]:
+                    return_label = Global.file_lines_map[funct.asm_filename][line_num+1]
+                else:    
+                    return_label = Global.file_lines_map[funct.asm_filename][line_num+2]
                 return_label = return_label.replace(funct.uniq_label, funct.uniq_label + "_clone" + str(clone_num))
                 
                 # Find funct being called
