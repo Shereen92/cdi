@@ -73,6 +73,10 @@ def conservative_cloning_heuristic(all_functs):
         
         if num_callsites > 1:
             clone_multiple_times(funct, all_functs, 1)
+            
+    for funct in all_functs:
+        return_site_elimination_map = distribute_callsites_among_clones(funct, all_functs)
+        eliminate_extra_return_sites(return_site_elimination_map)
     
 def aggressive_default_cloning_heuristic(all_functs):
     # The default heuristic is to produce a clone of a function for each callsite of that function - 1.
@@ -85,13 +89,15 @@ def aggressive_default_cloning_heuristic(all_functs):
         
         if num_callsites > 1:
             clone_multiple_times(funct, all_functs, num_callsites - 1)
+            
+    for funct in all_functs:
+        return_site_elimination_map = distribute_callsites_among_clones(funct, all_functs)
+        eliminate_extra_return_sites(return_site_elimination_map)
     
 def clone_multiple_times(funct, functs, num):
     #print "CLONING " + funct.asm_name + " several times: " + str(num)
     for n in range(num):
         clone_function(funct, functs)
-        return_site_elimination_map = distribute_callsites_among_clones(funct)
-        eliminate_extra_return_sites(return_site_elimination_map)
 
 def debug_map(line, file_name):
     pass
@@ -186,7 +192,7 @@ def collect_calls(funct):
             
     return indices_map
             
-def distribute_callsites_among_clones(funct):
+def distribute_callsites_among_clones(funct, all_functs):
     """
     funct must be an original function-- not a copy.
     """
@@ -217,12 +223,69 @@ def distribute_callsites_among_clones(funct):
             current_call_site_line_number = call_sites_map[key][i]
             #print(Global.file_lines[current_call_site_line_number])
             Global.file_lines_map[key][current_call_site_line_number] = "\tcall\t" + funct_to_assign_callsite_to.asm_name   
-            Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name, 1) 
+            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name, 1)
+            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name, )            
+            #Global.file_lines_map[key][current_call_site_line_number+1] = replaceNth(Global.file_lines_map[key][current_call_site_line_number+1], funct.asm_name, funct_to_assign_callsite_to.asm_name, 2)
+            #print Global.file_lines_map[key][current_call_site_line_number+1]
+            source, dest , dest_file, num= parse_line(Global.file_lines_map[key][current_call_site_line_number+1])
+            print ( "dest file " + dest_file )
+            #_CDI_benchmark.s.source_TO_benchmark.s.dest_2:
+            print "KEY " + key
+            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(source, funct_to_assign_callsite_to.asm_name, 1)
+              
+            closest_func = get_funct_via_line(Global.file_lines_map[key][current_call_site_line_number+1], all_functs, key)
+            label = "_CDI_" + key + "." + source + "_TO_" + dest_file + ".s." + closest_func + "_" + str(num) + ":"
+            print "LABEL: " +label
+            Global.file_lines_map[key][current_call_site_line_number+1] = label
+            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(dest, closest_func.asm_name)
+
+            #(Global.file_lines_map[key][current_call_site_line_number+1]) = (Global.file_lines_map[key][current_call_site_line_number+1]).replace(funct.asm_name, funct_to_assign_callsite_to)
             funct_to_return_label_map[funct_to_assign_callsite_to].append(Global.file_lines_map[key][current_call_site_line_number+1])
     
     # Line we care about keeping doesn't make it into this.
     return funct_to_return_label_map
 
+def get_funct_via_line(line, all_functs, file):
+    ind = Global.file_lines_map[file].index(line)
+    closest_funct = None
+    
+    for f in all_functs:
+        funct_list = [f]
+        funct_list.extend(f.clones)
+        for fc in funct_list:
+            if(fc.asm_filename != file):
+                continue
+            start_line_of_fc = fc.get_cdi_line_num(Global.file_lines_map)
+            if(closest_funct == None or (start_line_of_fc > closest_funct.get_cdi_line_num(Global.file_lines_map) and start_line_of_fc < ind)):
+                closest_funct = fc
+            
+    return closest_funct
+
+def parse_line(line):
+    if(line.startswith('_CDI')):
+        str = line.split('_TO_')
+        source = str[0].replace("CDI", "").split('.')
+        dest = str[1].replace("CDI", "").replace(":","").split('.')
+        s = source[2]
+        f = source[0].replace("_", "")
+        d = dest[2].rsplit('_', 1)[0]
+        n = dest[2].rsplit('_', 1)[-1]
+        print("s " + s)
+        print("d " + d)
+        print("f " + f)
+        print("n " + n)
+        return s, d, f, n
+    else:
+        return None, None
+    
+def replaceNth(s, source, target, n):
+    inds = [i for i in range(len(s) - len(source)+1) if s[i:i+len(source)]==source]
+    if len(inds) < n:
+        return  # or maybe raise an error
+    s = list(s)  # can't assign to string slices. So, let's listify
+    s[inds[n-1]:inds[n-1]+len(source)] = target  # do n-1 because we start from the first occurrence of the string, not the 0-th
+    return ''.join(s)
+    
 def finalize_output_file(code_lines_map):
     
     for key in code_lines_map.keys():
