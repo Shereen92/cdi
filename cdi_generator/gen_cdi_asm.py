@@ -237,7 +237,9 @@ def distribute_callsites_among_clones(funct, all_functs):
             dest_file, num= parse_line(desired_line)
             closest_func = get_funct_via_line(current_call_site_line_number+n, all_functs, key)
             label = "_CDI_" + key + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num) + ":" 
-            Global.file_lines_map[key][current_call_site_line_number+n] = label
+            glabel = ".globl _CDI_" + key + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num)  
+            Global.file_lines_map[key][current_call_site_line_number+n] = label           
+            Global.file_lines_map[key][current_call_site_line_number+n-1] = glabel
             funct_to_return_label_map[funct_to_assign_callsite_to].append(Global.file_lines_map[key][current_call_site_line_number+1])
     
     # Line we care about keeping doesn't make it into this.
