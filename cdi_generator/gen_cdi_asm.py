@@ -55,7 +55,13 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
             register_file_lines(src_line, asm_src.name)
             src_line = asm_src.readline()
     
+    
+    
     conservative_cloning_heuristic(all_functs)
+    
+    for key in Global.file_lines_map.keys():
+        for line in Global.file_lines_map[key]:
+            print "LLINE: [" + line + "]"
     
     finalize_output_file(Global.file_lines_map)
  
@@ -397,7 +403,7 @@ def clone_function(funct, functs):
     
     for line in Global.file_lines_map[funct.asm_filename][start:]:       
         if(line_num < end):
-            print "considering line: [" + line + "]"
+                
             if(line.startswith('.L') or line.startswith('.CDI')): #gather labels
                 labels.append(line.replace(':', ''))               
                 #add _clone_num to funct label
@@ -434,13 +440,14 @@ def clone_function(funct, functs):
             
             #print "Accepting line: [" + altered_line + "]"
             copies.append(altered_line)
+            #print "considering line: [" + altered_line + "]"
             line_num += 1 
 
     #print "LINES ADDED1: " + str(len(copies))
     copies = fix_names(copies, funct, labels, clone_num) #add _clone_num to other places needed
-
-    #for line in copies:
-    #    print line
+    
+    for line in copies:
+        print "WUOPPO: [" + line + "]"
     #print "LINES ADDED2: " + str(len(copies))
     Global.file_lines_map[funct.asm_filename][end:end] = copies
     
