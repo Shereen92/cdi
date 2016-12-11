@@ -58,10 +58,11 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
     conservative_cloning_heuristic(all_functs)
 
     
-    for key in Global.file_lines_map.keys():
-        for line in Global.file_lines_map[key]:
-            print "LLINE: [" + line + "]"
+    #for key in Global.file_lines_map.keys():
+    #    for line in Global.file_lines_map[key]:
+    #        print "LLAINE: [" + line + "]"
     
+    print "FUCKYALL"
     finalize_output_file(Global.file_lines_map)
  
     asm_src.close()
@@ -292,12 +293,13 @@ def replaceNth(s, source, target, n):
     return ''.join(s)
     
 def finalize_output_file(code_lines_map):
-    
+    print "WANT TO WRITE: " + str(len(code_lines_map.keys()))
     for key in code_lines_map.keys():
         name = key.replace('.s', '.cdi.s')
         output_file = open(name, 'w')
         for line in code_lines_map[key]:
-                output_file.write(line + '\n')
+            output_file.write(line + '\n')
+            print "WRITE!!"
         output_file.close()
           
 import sys   
@@ -321,8 +323,8 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     empty_ret_dict = dict()
     line_num = starting_line_num
     
-    
     for asm_line in funct_lines:
+        print "PRINTF LINE: [" + asm_line + "]"
         asm_parsing.update_dwarf_loc(asm_line, dwarf_loc)
         try:
             first_word = asm_line.split()[0]
@@ -411,6 +413,14 @@ def clone_function(funct, functs):
                 line_num += 1            
                 continue
             
+            #if(".local" in altered_line):
+            #    line_num += 1            
+            #    continue
+                
+            #if(".comm" in altered_line):
+            #    line_num += 1            
+            #    continue
+            
             # Special: If we hit a call...
             if "\tcall\t" in altered_line:
                 #Add return site to function being called.
@@ -438,8 +448,8 @@ def clone_function(funct, functs):
     #print "LINES ADDED1: " + str(len(copies))
     copies = fix_names(copies, funct, labels, clone_num) #add _clone_num to other places needed
     
-    for line in copies:
-        print "WUOPPO: [" + line + "]"
+    #for line in copies:
+    #    print "WUOPPO: [" + line + "]"
     #print "LINES ADDED2: " + str(len(copies))
     Global.file_lines_map[funct.asm_filename][end:end] = copies
     
@@ -447,6 +457,9 @@ def clone_function(funct, functs):
     #for c_line in copies:
     #    print "[" + c_line + "]"
     #print "END CLONE LINES"
+    
+    if funct.asm_name + "_clone" + str(clone_num) == "tfp_printf_clone2":
+        print "COPIES: " + str(len(copies))
     
     f,n = extract_funct_alt(copies, funct.asm_name + "_clone" + str(clone_num), end)
     f.asm_filename = funct.asm_filename

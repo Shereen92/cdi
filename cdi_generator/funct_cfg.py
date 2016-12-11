@@ -112,7 +112,7 @@ class Function:
             if ind > index_of_furthest_cmp:
                 index_of_furthest_cmp = ind
                 
-        print "SUPER INSERT: [" + line + "]"
+        #print "SUPER INSERT: [" + line + "]"
         #_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1:
         #   cmpq	$_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1, -8(%rsp)
         #   je	_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1
@@ -139,7 +139,28 @@ class Function:
                         
                         return file_lines_map[self.asm_filename].index(line)
                         
+    
     def get_cdi_end_line_num(self, file_lines_map, functs):
+        start_position = self.get_cdi_line_num(file_lines_map)
+        line_num = start_position
+        lfe_mode = False;
+        
+        for line in file_lines_map[self.asm_filename][start_position:]:
+            if lfe_mode:
+                if line[0] != '\t' and (line [0] != '.' or ".Ldebug" in line):
+                    break
+            
+            first_word = line.split()[0]
+            if first_word[:len('.LFE')] == '.LFE':
+                lfe_mode = True
+            line_num += 1
+        
+        return line_num
+    
+    """def get_cdi_end_line_num(self, file_lines_map, functs):
+    
+        v = self.get_cdi_end_line_num2(file_lines_map, functs)
+    
         closest = 9999999
         cur_position = self.get_cdi_line_num(file_lines_map)
         for funct in functs:
@@ -150,7 +171,13 @@ class Function:
             if diff < closest and diff > 0:
                 closest = diff
         end = cur_position + closest
-        return end
+        
+        try:
+            print "SUPERENDNEWEND: " + str(v) + " for func: " + self.asm_name + " ACTUAL LINE: [" + file_lines_map[self.asm_filename][v] + "]"
+            print "SUPERENDOLDEND: " + str(end) + " for func: " + self.asm_name + " ACTUAL LINE: [" + file_lines_map[self.asm_filename][end] + "]"
+        except:
+            pass
+        return end"""
 
 class FunctionType:
     """
