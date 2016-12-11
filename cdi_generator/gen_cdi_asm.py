@@ -55,7 +55,7 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
             register_file_lines(src_line, asm_src.name)
             src_line = asm_src.readline()
     
-    conservative_cloning_heuristic(all_functs)
+    aggressive_default_cloning_heuristic(all_functs)
 
     
     #for key in Global.file_lines_map.keys():
@@ -97,6 +97,11 @@ def aggressive_default_cloning_heuristic(all_functs):
             
     for funct in all_functs:
         return_site_elimination_map = distribute_callsites_among_clones(funct, all_functs)
+        print "RET SITE ELIM MAP"
+        for key in return_site_elimination_map.keys():
+            print "KEY: [" + key.asm_name + "]"
+            for line in return_site_elimination_map[key]:
+                print "LINE: [" + line + "]"
         eliminate_extra_return_sites(return_site_elimination_map)
     
 def clone_multiple_times(funct, functs, num):
@@ -250,7 +255,7 @@ def distribute_callsites_among_clones(funct, all_functs):
             #dest_file, num= parse_line(desired_line)
             #label = "_CDI_" + key + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num) + ":" 
             #Global.file_lines_map[key][current_call_site_line_number+n] = label 
-            funct_to_return_label_map[funct_to_assign_callsite_to].append(Global.file_lines_map[key][current_call_site_line_number+1])
+            funct_to_return_label_map[funct_to_assign_callsite_to].append(label)
     
     # Line we care about keeping doesn't make it into this.
     return funct_to_return_label_map
@@ -406,10 +411,10 @@ def clone_function(funct, functs):
                 labels.append(line.replace(':', ''))               
                 #add _clone_num to funct label
             #print "before: [" + line + "]"
-            if('_CDI' not in line):
-                altered_line = line.replace(funct.uniq_label, funct.uniq_label + "_clone" + str(clone_num))
-            else:
-                altered_line = line
+            #if('_CDI' not in line):
+            altered_line = line.replace(funct.uniq_label, funct.uniq_label + "_clone" + str(clone_num))
+            #else:
+            #    altered_line = line
             #print "after: [" + altered_line + "]"
             if("\tcmpq\t$_CDI_" in altered_line):
                 return_lines.append(altered_line)
@@ -457,14 +462,11 @@ def clone_function(funct, functs):
     #for line in copies:
     #    print "WUOPPO: [" + line + "]"
     #print "LINES ADDED2: " + str(len(copies))
-    if(funct.asm_name == "mov"):
-        dump_lines_snapshot("before_mov")
     
     true_end = Global.file_lines_map[funct.asm_filename].index(end_line_content)
     
     Global.file_lines_map[funct.asm_filename][true_end:true_end] = copies
-    if(funct.asm_name == "mov"):
-        dump_lines_snapshot("after_mov")
+    
     #print "LINES ADDED3: " + str(len(copies))
     #for c_line in copies:
     #    print "[" + c_line + "]"
