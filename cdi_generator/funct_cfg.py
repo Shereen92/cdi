@@ -112,7 +112,7 @@ class Function:
             if ind > index_of_furthest_cmp:
                 index_of_furthest_cmp = ind
                 
-        
+        print "SUPER INSERT: [" + line + "]"
         #_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1:
         #   cmpq	$_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1, -8(%rsp)
         #   je	_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1
