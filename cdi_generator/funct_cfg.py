@@ -69,7 +69,8 @@ class CDIRetSite:
     def GetLineNumbers(self, file_content):
         return file_content.index(self.line_1), \
             file_content.index(self.line_2)
-        
+
+            
 class Function:
     def __init__(self, asm_name, asm_filename, src_filename, sites, 
                  asm_line_num):
