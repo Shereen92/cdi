@@ -55,9 +55,8 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
             register_file_lines(src_line, asm_src.name)
             src_line = asm_src.readline()
     
-    
-    
     conservative_cloning_heuristic(all_functs)
+
     
     for key in Global.file_lines_map.keys():
         for line in Global.file_lines_map[key]:
@@ -227,25 +226,18 @@ def distribute_callsites_among_clones(funct, all_functs):
             funct_to_assign_callsite_to = functs[funct_num_to_assign_callsite_to]
             # Edit actual callsite
             current_call_site_line_number = call_sites_map[key][i]
-            #print(Global.file_lines[current_call_site_line_number])
+            n = 0 
             Global.file_lines_map[key][current_call_site_line_number] = "\tcall\t" + funct_to_assign_callsite_to.asm_name   
-            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name, 1)
-            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name, )            
-            #Global.file_lines_map[key][current_call_site_line_number+1] = replaceNth(Global.file_lines_map[key][current_call_site_line_number+1], funct.asm_name, funct_to_assign_callsite_to.asm_name, 2)
-            #print Global.file_lines_map[key][current_call_site_line_number+1]
-            dest_file, num= parse_line(Global.file_lines_map[key][current_call_site_line_number+1])
-            #_CDI_benchmark.s.source_TO_benchmark.s.dest_2:
-            #print "DEST " + dest
-            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(source, funct_to_assign_callsite_to.asm_name, 1)
-            closest_func = get_funct_via_line(current_call_site_line_number+1, all_functs, key)
+            if Global.file_lines_map[key][current_call_site_line_number+1].startswith('.globl'):
+                desired_line = Global.file_lines_map[key][current_call_site_line_number+2]
+                n = 2
+            else:
+                desired_line = Global.file_lines_map[key][current_call_site_line_number+1]
+                n = 1
+            dest_file, num= parse_line(desired_line)
+            closest_func = get_funct_via_line(current_call_site_line_number+n, all_functs, key)
             label = "_CDI_" + key + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num) + ":" 
-            #print "LABEL: " +label
-            #print "BEFORE " + Global.file_lines_map[key][current_call_site_line_number+1]
-            Global.file_lines_map[key][current_call_site_line_number+1] = label
-            #print "After " + Global.file_lines_map[key][current_call_site_line_number+1]
-            #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(dest, closest_func.asm_name)
-
-            #(Global.file_lines_map[key][current_call_site_line_number+1]) = (Global.file_lines_map[key][current_call_site_line_number+1]).replace(funct.asm_name, funct_to_assign_callsite_to)
+            Global.file_lines_map[key][current_call_site_line_number+n] = label
             funct_to_return_label_map[funct_to_assign_callsite_to].append(Global.file_lines_map[key][current_call_site_line_number+1])
     
     # Line we care about keeping doesn't make it into this.
@@ -442,7 +434,7 @@ def clone_function(funct, functs):
             copies.append(altered_line)
             #print "considering line: [" + altered_line + "]"
             line_num += 1 
-
+    
     #print "LINES ADDED1: " + str(len(copies))
     copies = fix_names(copies, funct, labels, clone_num) #add _clone_num to other places needed
     
