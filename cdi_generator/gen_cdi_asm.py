@@ -233,14 +233,14 @@ def distribute_callsites_among_clones(funct, all_functs):
             desired_line_2 = Global.file_lines_map[key][current_call_site_line_number+2]
             if desired_line_1.startswith('.globl'):              
                 dest_f, n= parse_line(desired_line_2)
-                glabel = ".globl _CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_f + ".s." + closest_func.asm_name + "_" + str(n)                  
+                glabel = ".globl _CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + closest_func.asm_filename + "."  + closest_func.asm_name + "_" + str(n)                  
                 Global.file_lines_map[key][current_call_site_line_number+1] = glabel
-                label = "_CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_f + ".s." + closest_func.asm_name + "_" + str(n) + ":" 
+                label = "_CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + closest_func.asm_filename + "." + closest_func.asm_name + "_" + str(n) + ":" 
                 Global.file_lines_map[key][current_call_site_line_number+2] = label 
                 n = 2
             else:
                 dest_file, num= parse_line(desired_line_1)
-                label = "_CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num) + ":" 
+                label = "_CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + closest_func.asm_filename + "." + closest_func.asm_name + "_" + str(num) + ":" 
                 #desired_line = Global.file_lines_map[key][current_call_site_line_number+1]
                 Global.file_lines_map[key][current_call_site_line_number+1] = label 
 
