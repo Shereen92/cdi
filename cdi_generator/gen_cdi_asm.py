@@ -227,16 +227,16 @@ def distribute_callsites_among_clones(funct, all_functs):
             #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(funct.asm_name, funct_to_assign_callsite_to.asm_name, )            
             #Global.file_lines_map[key][current_call_site_line_number+1] = replaceNth(Global.file_lines_map[key][current_call_site_line_number+1], funct.asm_name, funct_to_assign_callsite_to.asm_name, 2)
             #print Global.file_lines_map[key][current_call_site_line_number+1]
-            source, dest , dest_file, num= parse_line(Global.file_lines_map[key][current_call_site_line_number+1])
-            print ( "dest file " + dest_file )
+            dest_file, num= parse_line(Global.file_lines_map[key][current_call_site_line_number+1])
             #_CDI_benchmark.s.source_TO_benchmark.s.dest_2:
-            print "KEY " + key
+            #print "DEST " + dest
             #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(source, funct_to_assign_callsite_to.asm_name, 1)
-              
             closest_func = get_funct_via_line(Global.file_lines_map[key][current_call_site_line_number+1], all_functs, key)
-            label = "_CDI_" + key + "." + source + "_TO_" + dest_file + ".s." + closest_func + "_" + str(num) + ":"
-            print "LABEL: " +label
+            label = "_CDI_" + key + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num) + ":" 
+            #print "LABEL: " +label
+            #print "BEFORE " + Global.file_lines_map[key][current_call_site_line_number+1]
             Global.file_lines_map[key][current_call_site_line_number+1] = label
+            #print "After " + Global.file_lines_map[key][current_call_site_line_number+1]
             #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(dest, closest_func.asm_name)
 
             #(Global.file_lines_map[key][current_call_site_line_number+1]) = (Global.file_lines_map[key][current_call_site_line_number+1]).replace(funct.asm_name, funct_to_assign_callsite_to)
@@ -246,7 +246,9 @@ def distribute_callsites_among_clones(funct, all_functs):
     return funct_to_return_label_map
 
 def get_funct_via_line(line, all_functs, file):
-    ind = Global.file_lines_map[file].index(line)
+    ind = [i for i, x in enumerate(Global.file_lines_map[file]) if x == line][-1]
+    print "=============INDEX FUN TIME============" + str(ind)
+    print line
     closest_funct = None
     
     for f in all_functs:
@@ -256,9 +258,15 @@ def get_funct_via_line(line, all_functs, file):
             if(fc.asm_filename != file):
                 continue
             start_line_of_fc = fc.get_cdi_line_num(Global.file_lines_map)
+            """
+            if closest_funct is not None:
+                print "closest funct " + closest_funct.asm_name + " at line " + str(closest_funct.get_cdi_line_num(Global.file_lines_map))
+                print "comp funct " + fc.asm_name + " at line " + str(fc.get_cdi_line_num(Global.file_lines_map))
+            """
             if(closest_funct == None or (start_line_of_fc > closest_funct.get_cdi_line_num(Global.file_lines_map) and start_line_of_fc < ind)):
                 closest_funct = fc
-            
+                print "FUND NEW CLOSEST FUNCT MOTHER FUNCTER: " + closest_funct.asm_name
+    print("CLOSEST funct " + closest_funct.asm_name)        
     return closest_funct
 
 def parse_line(line):
@@ -270,11 +278,8 @@ def parse_line(line):
         f = source[0].replace("_", "")
         d = dest[2].rsplit('_', 1)[0]
         n = dest[2].rsplit('_', 1)[-1]
-        print("s " + s)
-        print("d " + d)
-        print("f " + f)
-        print("n " + n)
-        return s, d, f, n
+
+        return f, n
     else:
         return None, None
     
