@@ -231,7 +231,7 @@ def distribute_callsites_among_clones(funct, all_functs):
             #_CDI_benchmark.s.source_TO_benchmark.s.dest_2:
             #print "DEST " + dest
             #Global.file_lines_map[key][current_call_site_line_number+1] = Global.file_lines_map[key][current_call_site_line_number+1].replace(source, funct_to_assign_callsite_to.asm_name, 1)
-            closest_func = get_funct_via_line(Global.file_lines_map[key][current_call_site_line_number+1], all_functs, key)
+            closest_func = get_funct_via_line(current_call_site_line_number+1, all_functs, key)
             label = "_CDI_" + key + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num) + ":" 
             #print "LABEL: " +label
             #print "BEFORE " + Global.file_lines_map[key][current_call_site_line_number+1]
@@ -245,10 +245,11 @@ def distribute_callsites_among_clones(funct, all_functs):
     # Line we care about keeping doesn't make it into this.
     return funct_to_return_label_map
 
-def get_funct_via_line(line, all_functs, file):
-    ind = [i for i, x in enumerate(Global.file_lines_map[file]) if x == line][-1]
+def get_funct_via_line(line_num, all_functs, file):
+    ind = line_num
+    
     print "=============INDEX FUN TIME============" + str(ind)
-    print line
+    #print "INDICES: " + str(len(indices))
     closest_funct = None
     
     for f in all_functs:
