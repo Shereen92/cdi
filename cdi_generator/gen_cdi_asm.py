@@ -394,7 +394,8 @@ def clone_function(funct, functs):
     start = line_num
     
     print "START: " + str(start) + " [" + Global.file_lines_map[funct.asm_filename][start] + "]"
-    print "END: " + str(end) + " [" + Global.file_lines_map[funct.asm_filename][end] + "]"
+    end_line_content = Global.file_lines_map[funct.asm_filename][end]
+    print "END: " + str(end) + " [" + end_line_content + "]"
     
     labels = []
     return_lines = []
@@ -456,12 +457,14 @@ def clone_function(funct, functs):
     #for line in copies:
     #    print "WUOPPO: [" + line + "]"
     #print "LINES ADDED2: " + str(len(copies))
-    if(funct.asm_name == "tfp_printf"):
-        dump_lines_snapshot("before")
-        
-    Global.file_lines_map[funct.asm_filename][end:end] = copies
-    if(funct.asm_name == "tfp_printf"):
-        dump_lines_snapshot("after")
+    if(funct.asm_name == "mov"):
+        dump_lines_snapshot("before_mov")
+    
+    true_end = Global.file_lines_map[funct.asm_filename].index(end_line_content)
+    
+    Global.file_lines_map[funct.asm_filename][true_end:true_end] = copies
+    if(funct.asm_name == "mov"):
+        dump_lines_snapshot("after_mov")
     #print "LINES ADDED3: " + str(len(copies))
     #for c_line in copies:
     #    print "[" + c_line + "]"
@@ -470,7 +473,7 @@ def clone_function(funct, functs):
     if funct.asm_name + "_clone" + str(clone_num) == "tfp_printf_clone2":
         print "COPIES: " + str(len(copies))
     
-    f,n = extract_funct_alt(copies, funct.asm_name + "_clone" + str(clone_num), end)
+    f,n = extract_funct_alt(copies, funct.asm_name + "_clone" + str(clone_num), true_end)
     f.asm_filename = funct.asm_filename
     
     for ret_line in return_lines:
