@@ -91,11 +91,6 @@ def aggressive_default_cloning_heuristic(all_functs):
             
     for funct in all_functs:
         return_site_elimination_map = distribute_callsites_among_clones(funct, all_functs)
-        print "RET SITE ELIM MAP"
-        for key in return_site_elimination_map.keys():
-            print "KEY: [" + key.asm_name + "]"
-            for line in return_site_elimination_map[key]:
-                print "LINE: [" + line + "]"
         eliminate_extra_return_sites(return_site_elimination_map)
     
 def clone_multiple_times(funct, functs, num):
@@ -293,17 +288,13 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     return new_funct, line_num
          
 def clone_function(funct, functs):
-    print "CLONING function : [" + funct.asm_name + "]"
     line_num = funct.get_cdi_line_num(Global.file_lines_map)
     copies = []
     clone_num = funct.get_num_clones() + 2
     end = funct.get_cdi_end_line_num(Global.file_lines_map, functs)
     start = line_num
     
-    print "START: " + str(start) + " [" + Global.file_lines_map[funct.asm_filename][start] + "]"
-    end_line_content = Global.file_lines_map[funct.asm_filename][end]
-    print "END: " + str(end) + " [" + end_line_content + "]"
-    
+    end_line_content = Global.file_lines_map[funct.asm_filename][end]    
     labels = []
     return_lines = []
     
@@ -354,9 +345,6 @@ def clone_function(funct, functs):
     true_end = Global.file_lines_map[funct.asm_filename].index(end_line_content)
     
     Global.file_lines_map[funct.asm_filename][true_end:true_end] = copies
-
-    if funct.asm_name + "_clone" + str(clone_num) == "tfp_printf_clone2":
-        print "COPIES: " + str(len(copies))
     
     f,n = extract_funct_alt(copies, funct.asm_name + "_clone" + str(clone_num), true_end)
     f.asm_filename = funct.asm_filename

@@ -308,7 +308,6 @@ def read_function_types(src_filename_set, options):
 
     
     for src_filename in src_filename_set:
-        #print "FUCKOFF: [" + src_filename + "]" 
         try:
             funct_typefile = open(src_filename + '.ftypes', 'r')
         except IOError:
@@ -326,7 +325,6 @@ def read_function_types(src_filename_set, options):
             funct_type.src_name = loc_list[3]
             key = funct_type.src_filename + '.' + funct_type.src_name
             funct_types[key] = funct_type
-            #print "inserted at [" + key + "]"
         funct_typefile.close()
 
     if options['--verbose']:
