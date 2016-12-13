@@ -56,12 +56,6 @@ def gen_cdi_asm(cfg, asm_file_descrs, options):
             src_line = asm_src.readline()
     
     aggressive_default_cloning_heuristic(all_functs)
-
-    
-    #for key in Global.file_lines_map.keys():
-    #    for line in Global.file_lines_map[key]:
-    #        print "LLAINE: [" + line + "]"
-    
     finalize_output_file(Global.file_lines_map)
  
     asm_src.close()
@@ -105,7 +99,6 @@ def aggressive_default_cloning_heuristic(all_functs):
         eliminate_extra_return_sites(return_site_elimination_map)
     
 def clone_multiple_times(funct, functs, num):
-    #print "CLONING " + funct.asm_name + " several times: " + str(num)
     for n in range(num):
         clone_function(funct, functs)
 
@@ -119,15 +112,6 @@ def eliminate_extra_return_sites(ret_map):
     """
     functs = ret_map.keys()
     
-    """
-    for f in functs:
-        print("-----")
-        print("Function " + f.asm_name + " from file " + f.asm_filename)
-        print("The returns for this function are ")
-        for i in ret_map[f]:
-            print(i)
-        print("---end---")
-    """
     for f in functs:
         return_sites_for_funct = f.cdi_return_sites
         
@@ -140,50 +124,13 @@ def eliminate_extra_return_sites(ret_map):
             temp_label = "\tcmpq\t$" + label 
             temp_label = temp_label[:-1]
             temp_label = temp_label + ", -8(%rsp)"
-            #label = temp_label
             ret_list[ret_list.index(label)] = temp_label
         
         rets_to_delete = list(set(return_sites_for_funct) - set(ret_list))
-        #print("RETS to DELETE ")
-        #for r in rets_to_delete:
-        #    print "[" + r + "]"
-        
-        #print("SHIT " + f.asm_filename)
-        #for line in Global.file_lines_map[f.asm_filename]:
-            #print "Line -- [" +line + "]"
-            
-            
-            
-        # BUG ZONE:
-        # Cannot find # Not in list: '\tcmpq\t$_CDI_printf.s.out_2_TO_printf.s.tfp_printf_3, -8(%rsp)'
-        # in Global.file_lines_map["printf.s"]
-            
-        #for line in Global.file_lines_map["printf.s"]:
-        #    print "[" + line + ']'
-        
             
         for del_line in rets_to_delete:
             
             ind = Global.file_lines_map[f.asm_filename].index(del_line)
-            #print("DEL LINE -> [" + del_line + ']')
-            #for line in Global.file_lines_map[f.asm_filename]:
-            #print("COMPARING : ")
-            #print("LINE -> " + line)
-            #print "f.asm_filename:[" + f.asm_filename + ']'
-        
-            #if line == del_line:
-            #    print "MATCH FOUND"
-            
-            for line in Global.file_lines_map[f.asm_filename]:
-                #print("COMPARING : ")
-                #print("LINE -> " + line)
-                #print("DEL LINE -> " + del_line)
-                """
-                if('_CDI_printf.s.out_TO_printf.s.tfp_printf_2,' in line):
-                    print "FOUND"
-                if line == del_line:
-                    print "MATCH FOUND"
-                """   
             Global.file_lines_map[f.asm_filename].pop(ind)
             Global.file_lines_map[f.asm_filename].pop(ind)
             f.cdi_return_sites.remove(del_line)
@@ -197,7 +144,6 @@ def collect_calls(funct):
         for line in Global.file_lines_map[key]:
             if callsite_line == line:
                 indices_map[key].append(line_no)    
-                #print("Adding [" + str(line) + "] at index " + str(line_no))
             line_no += 1
             
     return indices_map
@@ -218,13 +164,6 @@ def distribute_callsites_among_clones(funct, all_functs):
 
     # Perform call sled rewrite
     call_sites_map = collect_calls(funct)
-    """
-    print "Distribute Callsites for funct: " + funct.asm_name
-    for key in call_sites_map:
-        for site in call_sites_map[key]:
-            print site
-    print "SUPER END"
-    """
     for key in call_sites_map.keys():
         for i in range(len(call_sites_map[key])):
             funct_num_to_assign_callsite_to = i % num_functs
@@ -237,33 +176,23 @@ def distribute_callsites_among_clones(funct, all_functs):
             desired_line_1 = Global.file_lines_map[key][current_call_site_line_number+1]
             desired_line_2 = Global.file_lines_map[key][current_call_site_line_number+2]
             if desired_line_1.startswith('.globl'):              
-                dest_f, n= parse_line(desired_line_2)
+                n= parse_line(desired_line_2)
                 glabel = ".globl _CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + closest_func.asm_filename + "."  + closest_func.asm_name + "_" + str(n)                  
                 Global.file_lines_map[key][current_call_site_line_number+1] = glabel
                 label = "_CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + closest_func.asm_filename + "." + closest_func.asm_name + "_" + str(n) + ":" 
                 Global.file_lines_map[key][current_call_site_line_number+2] = label 
-                n = 2
             else:
-                dest_file, num= parse_line(desired_line_1)
+                num= parse_line(desired_line_1)
                 label = "_CDI_" + funct_to_assign_callsite_to.asm_filename + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + closest_func.asm_filename + "." + closest_func.asm_name + "_" + str(num) + ":" 
-                #desired_line = Global.file_lines_map[key][current_call_site_line_number+1]
                 Global.file_lines_map[key][current_call_site_line_number+1] = label 
 
-                n = 1
-                                
-            
-            #dest_file, num= parse_line(desired_line)
-            #label = "_CDI_" + key + "." + funct_to_assign_callsite_to.asm_name + "_TO_" + dest_file + ".s." + closest_func.asm_name + "_" + str(num) + ":" 
-            #Global.file_lines_map[key][current_call_site_line_number+n] = label 
             funct_to_return_label_map[funct_to_assign_callsite_to].append(label)
     
-    # Line we care about keeping doesn't make it into this.
     return funct_to_return_label_map
 
 def get_funct_via_line(line_num, all_functs, file):
     ind = line_num
     
-    #print "INDICES: " + str(len(indices))
     closest_funct = None
     
     for f in all_functs:
@@ -273,11 +202,6 @@ def get_funct_via_line(line_num, all_functs, file):
             if(fc.asm_filename != file):
                 continue
             start_line_of_fc = fc.get_cdi_line_num(Global.file_lines_map)
-            """
-            if closest_funct is not None:
-                print "closest funct " + closest_funct.asm_name + " at line " + str(closest_funct.get_cdi_line_num(Global.file_lines_map))
-                print "comp funct " + fc.asm_name + " at line " + str(fc.get_cdi_line_num(Global.file_lines_map))
-            """
             if(closest_funct == None or (start_line_of_fc > closest_funct.get_cdi_line_num(Global.file_lines_map) and start_line_of_fc < ind)):
                 closest_funct = fc
     return closest_funct
@@ -292,18 +216,10 @@ def parse_line(line):
         d = dest[2].rsplit('_', 1)[0]
         n = dest[2].rsplit('_', 1)[-1]
 
-        return f, n
+        return n
     else:
-        return None, None
-    
-def replaceNth(s, source, target, n):
-    inds = [i for i in range(len(s) - len(source)+1) if s[i:i+len(source)]==source]
-    if len(inds) < n:
-        return  # or maybe raise an error
-    s = list(s)  # can't assign to string slices. So, let's listify
-    s[inds[n-1]:inds[n-1]+len(source)] = target  # do n-1 because we start from the first occurrence of the string, not the 0-th
-    return ''.join(s)
-    
+        return None
+
 def finalize_output_file(code_lines_map):
     for key in code_lines_map.keys():
         name = key.replace('.s', '.cdi.s')
@@ -317,7 +233,6 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
     """
     Constructs a cloned function from an array of code lines. 
     """
-    #print "BEGIN extract_funct_alt"
     start_line_num = 0
     call_list = ["call","callf", "callq"]
     returns = ["ret", "retf", "iret", "retq", "iretq"]
@@ -369,25 +284,12 @@ def extract_funct_alt(funct_lines, funct_name, starting_line_num):
         eprint(dwarf_loc.filename() + ':' + ' ' + ':' 
                 + str(start_line_num) + ' error: unterminated function: ',
                 funct_name)
-        """
-        print("HERE IS LINES ")
-        for line in funct_lines:
-            print line
-        print("SITES: ")
-        for s in sites:
-            print(s)
-        """    
-        #sys.exit(1)
 
-    # new_funct = funct_cfg.Function(funct_name, asm_file.name, 
-            #dwarf_loc.filename(), sites)
     src_filename = dwarf_loc.filename()
-    #print "SRC FILENAME IN ALT: " + src_filename
     new_funct = funct_cfg.Function(funct_name, ' ', 
             src_filename, sites, starting_line_num)
     new_funct.direct_call_sites = direct_call_sites
     new_funct.ret_dict = empty_ret_dict
-    # does not fill in all attributes (asm_filename) of funct obj
     return new_funct, line_num
          
 def clone_function(funct, functs):
@@ -409,13 +311,7 @@ def clone_function(funct, functs):
         if(line_num < end):
             if(line.startswith('.L') or line.startswith('.CDI')): #gather labels
                 labels.append(line.replace(':', ''))               
-                #add _clone_num to funct label
-            #print "before: [" + line + "]"
-            #if('_CDI' not in line):
             altered_line = line.replace(funct.uniq_label, funct.uniq_label + "_clone" + str(clone_num))
-            #else:
-            #    altered_line = line
-            #print "after: [" + altered_line + "]"
             if("\tcmpq\t$_CDI_" in altered_line):
                 return_lines.append(altered_line)
             if(".file" in altered_line):
@@ -451,27 +347,14 @@ def clone_function(funct, functs):
                     line_num += increment
                     end += increment
             
-            #print "Accepting line: [" + altered_line + "]"
             copies.append(altered_line)
-            #print "considering line: [" + altered_line + "]"
             line_num += 1
     
-    #print "LINES ADDED1: " + str(len(copies))
     copies = fix_names(copies, funct, labels, clone_num) #add _clone_num to other places needed
-    
-    #for line in copies:
-    #    print "WUOPPO: [" + line + "]"
-    #print "LINES ADDED2: " + str(len(copies))
-    
     true_end = Global.file_lines_map[funct.asm_filename].index(end_line_content)
     
     Global.file_lines_map[funct.asm_filename][true_end:true_end] = copies
-    
-    #print "LINES ADDED3: " + str(len(copies))
-    #for c_line in copies:
-    #    print "[" + c_line + "]"
-    #print "END CLONE LINES"
-    
+
     if funct.asm_name + "_clone" + str(clone_num) == "tfp_printf_clone2":
         print "COPIES: " + str(len(copies))
     
@@ -487,6 +370,7 @@ def clone_function(funct, functs):
 
     return f
     
+#For debugging purposes    
 def dump_lines_snapshot(special_name):
     for key in Global.file_lines_map.keys():
         name = key.replace('.s', '.snap_' + special_name + ".txt")
@@ -503,7 +387,6 @@ def get_funct_via_name(funct_name, all_functs):
     return None
     
 def fix_names(copies, funct, labels, clone_num): 
-    #print "fixing names for funct: [" + funct.asm_name + "] clone num: " + str(clone_num) 
     copies[0] = copies[0].replace(':', '') #remove :
     copies[0] = copies[0].replace(copies[0], copies[0] + '_clone' + str(clone_num) + ':') #add clone_num to name of funct
     for s in labels:
@@ -610,7 +493,6 @@ def register_file_lines(content, file_name):
     while '' in r:
         r.remove('')
     Global.file_lines_map[file_name].extend(r)
-    #debug_map(r, file_name)
         
 def convert_return_site(site, funct, asm_line, asm_dest, cfg,
         sled_id_faucet, dwarf_loc, options, functs):
@@ -629,7 +511,6 @@ def convert_return_site(site, funct, asm_line, asm_dest, cfg,
             sled_label = cdi_ret_prefix + target_label + '_' + str(i)
             new_comparison_line = '\tcmpq\t$' + sled_label + ', -8(%rsp)\n'
             ret_sled += new_comparison_line
-            #funct.cdi_return_sites.append(new_comparison_line)
             funct.register_return_site(new_comparison_line)
             ret_sled += '\tje\t' + sled_label + '\n'
             i += 1

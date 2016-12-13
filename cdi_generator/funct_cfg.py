@@ -78,13 +78,10 @@ class Function:
         self.asm_filename = asm_filename
         self.sites = sites
         self.asm_line_num = asm_line_num
-        #self.asm_cdi_line_num = asm_line_num
-        #self.asm_cdi_end_line_num = -1
         self.uniq_label = asm_filename + '.' + asm_name
         self.src_filename = src_filename
         self.clones = []
-        self.cdi_return_sites = [] # 
-        
+        self.cdi_return_sites = [] #        
         # unitialized / improperly set until gen_cfg finishes
         self.ftype = None # function type
         self.ret_dict = dict()
@@ -98,9 +95,6 @@ class Function:
             line = line[:-1]
         if line not in self.cdi_return_sites:
             self.cdi_return_sites.append(line)
-        #else:
-            #print "[ERROR] Attempt to register already-registered return site line."
-            
             
     def insert_return_site(self, line, file_lines_map, line_num):
         """
@@ -112,11 +106,7 @@ class Function:
             ind = file_lines_map[self.asm_filename].index(ret_cmp_inst)
             if ind > index_of_furthest_cmp:
                 index_of_furthest_cmp = ind
-                
-        #print "SUPER INSERT: [" + line + "]"
-        #_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1:
-        #   cmpq	$_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1, -8(%rsp)
-        #   je	_CDI_test_single_level.s.bar_TO_test_single_level.s.main_1
+
         compare_inst = "\tcmpq\t$" + line[:-1] + ", -8(%rsp)"
         jump_inst = "\tje\t" + line[:-1]
         new_ret_site = [compare_inst, jump_inst]
@@ -128,16 +118,11 @@ class Function:
         return 0
             
     def get_cdi_line_num(self, file_lines_map):   
-        #print("HEREEEE " + self.asm_filename)
-        #print(self.asm_name)
         for line in file_lines_map[self.asm_filename]:
             if self.asm_name in line:
-                #print "FOUND 1: " + line
                 if ':' in line:
-                    #print "FOUND 2 -> " + str(line) + " with length " + str(len(line)) + " compared to: " + str(self.asm_name) + " with " + str(len(self.asm_name)+1)
                     if len(line) == len(self.asm_name)+1:
-                        #print "FOUND 3"
-                        
+
                         return file_lines_map[self.asm_filename].index(line)
                         
     
@@ -157,28 +142,6 @@ class Function:
             line_num += 1
         
         return line_num
-    
-    """def get_cdi_end_line_num(self, file_lines_map, functs):
-    
-        v = self.get_cdi_end_line_num2(file_lines_map, functs)
-    
-        closest = 9999999
-        cur_position = self.get_cdi_line_num(file_lines_map)
-        for funct in functs:
-            if funct == self or funct.asm_filename != self.asm_filename:
-                continue
-            func_position = funct.get_cdi_line_num(file_lines_map)
-            diff = func_position - cur_position
-            if diff < closest and diff > 0:
-                closest = diff
-        end = cur_position + closest
-        
-        try:
-            print "SUPERENDNEWEND: " + str(v) + " for func: " + self.asm_name + " ACTUAL LINE: [" + file_lines_map[self.asm_filename][v] + "]"
-            print "SUPERENDOLDEND: " + str(end) + " for func: " + self.asm_name + " ACTUAL LINE: [" + file_lines_map[self.asm_filename][end] + "]"
-        except:
-            pass
-        return end"""
 
 class FunctionType:
     """
@@ -187,7 +150,6 @@ class FunctionType:
     def __init__(self, mangled_str):
         self.mangled_str = mangled_str
         self.src_name = '' # used when function type
-
         # location
         self.src_filename = ''
         self.src_line_num = -1
