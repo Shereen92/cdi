@@ -14,6 +14,10 @@ root ->
 Development of the function cloning optimization may be examined via github repo at...
 https://github.com/Shereen92/cdi
 
+The primary point of entry for the function cloning python program is the gen_cdi.py file, used with "python gen_cdi.py <.s file 1> <.s file 2> ..."
+
+The compile_program.sh bash script may make the full process a bit easier (though it may require some customization).
+
 ==Presentation==
 The presentation was created in Google Slides and executed on December 12th at 11:15am.
 View a copy of the presentation...
