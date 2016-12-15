@@ -17,6 +17,10 @@ The primary point of entry for the function cloning python program is the gen_cd
 
 The compile_program.sh bash script may make the full process a bit easier (though it may require some customization).
 
+Or 
+
+For fully automated CDI-GCC the cdi-as(assembler) and cdi-ld(linker) found in the CDI-GCC_wrappers directory can be used.
+
 ==Presentation==
 The presentation was created in Google Slides and executed on December 12th at 11:15am.
 View a copy of the presentation...
