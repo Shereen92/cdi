@@ -1,0 +1,3 @@
+test.c:2:6:bar _CDIv_Z3bari
+test.c:5:5:foo _CDIi_Z3fooi
+test.c:13:5:main _CDIi_Z4mainv

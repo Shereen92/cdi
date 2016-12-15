@@ -1,0 +1,4 @@
+present_1.c:2:6:bar _CDIv_Z3bari
+present_1.c:5:5:foo _CDIi_Z3fooi
+present_1.c:10:10:baz _CDIi_Z3bazi
+present_1.c:13:5:main _CDIi_Z4mainv

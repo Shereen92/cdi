@@ -1,0 +1,6 @@
+benchmark.c:11:1:mov _CDIi_ZL3moviii
+benchmark.c:29:1:hanoi_main _CDIi_Z10hanoi_mainv
+benchmark.c:60:1:encipher _CDIv_Z8encipherPjPjPj
+benchmark.c:77:1:decipher _CDIv_Z8decipherPjPjPj
+benchmark.c:102:1:cipher_main _CDIi_Z11cipher_mainv
+benchmark.c:132:5:main _CDIi_Z4mainv
