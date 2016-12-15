@@ -1,0 +1,6 @@
+num_callsites,nonoptimized_time_sec,optimized_time_sec,nonoptimized_space_bytes,optimized_space_bytes
+1,2.77,2.79,1608,1608
+5,15.32,11.68,1744,2160
+10,36.55,23.34,1880,2836
+50,631.54,120.38,3000,8276
+100,2368.83,260.5,4392,15276
